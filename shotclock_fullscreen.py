@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import colorchooser
 import winsound
 
 class ShotClock:
@@ -21,7 +22,7 @@ class ShotClock:
             self.display_window,
             text="40",
             font=("Arial", 250, "bold"),
-            fg="White",
+            fg="white",
             bg="black"
         )
         self.display_label.pack(expand=True)
@@ -53,6 +54,12 @@ class ShotClock:
         self.shot_duration = self.create_entry(settings, "Shot Duration", "40", 0)
         self.extension = self.create_entry(settings, "Extension", "15", 1)
         self.alert_time = self.create_entry(settings, "Alert At", "10", 2)
+        self.normal_color = self.create_entry(settings, "Normal Color", "white", 3)
+        self.alert_color = self.create_entry(settings, "Alert Color", "red", 4)
+
+        # Color picker buttons
+        tk.Button(settings, text="Pick Normal Color", command=self.choose_normal_color, width=18).grid(row=3, column=2, padx=10)
+        tk.Button(settings, text="Pick Alert Color", command=self.choose_alert_color, width=18).grid(row=4, column=2, padx=10)
 
         # ================= CONTROLS =================
         controls = tk.Frame(self.root, bg="black")
@@ -90,7 +97,7 @@ class ShotClock:
             parent, text=label, fg="white", bg="black", font=("Arial", 18)
         ).grid(row=row, column=0, padx=10, pady=5)
 
-        entry = tk.Entry(parent, font=("Arial", 18), width=6, justify="center")
+        entry = tk.Entry(parent, font=("Arial", 18), width=8, justify="center")
         entry.insert(0, default)
         entry.grid(row=row, column=1)
 
@@ -109,6 +116,19 @@ class ShotClock:
             width=14,
             command=command
         ).grid(row=0, column=col, padx=10)
+
+    # ================= COLOR PICKERS =================
+    def choose_normal_color(self):
+        color = colorchooser.askcolor()[1]  # Returns (#RRGGBB)
+        if color:
+            self.normal_color.delete(0, tk.END)
+            self.normal_color.insert(0, color)
+
+    def choose_alert_color(self):
+        color = colorchooser.askcolor()[1]
+        if color:
+            self.alert_color.delete(0, tk.END)
+            self.alert_color.insert(0, color)
 
     # ================= MODE CONTROL =================
     def entry_focus_on(self, event):
@@ -137,6 +157,12 @@ class ShotClock:
         value = str(self.time_left)
         self.controller_display.config(text=value)
         self.display_label.config(text=value)
+
+        # Update colors based on alert threshold
+        alert = int(self.alert_time.get())
+        color = self.alert_color.get() if self.time_left <= alert else self.normal_color.get()
+        self.controller_display.config(fg=color)
+        self.display_label.config(fg=color)
 
     # ================= ACTIONS =================
     def start(self):
