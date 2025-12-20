@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import colorchooser
+from tkinter import colorchooser, filedialog
 import winsound
 
 class ShotClock:
@@ -11,6 +11,7 @@ class ShotClock:
 
         self.time_left = 40
         self.running = False
+        self.alert_file_path = None  # Store custom sound file path
 
         # ================= DISPLAY WINDOW =================
         self.display_window = tk.Toplevel(self.root)
@@ -60,6 +61,9 @@ class ShotClock:
         # Color picker buttons
         tk.Button(settings, text="Pick Normal Color", command=self.choose_normal_color, width=18).grid(row=3, column=2, padx=10)
         tk.Button(settings, text="Pick Alert Color", command=self.choose_alert_color, width=18).grid(row=4, column=2, padx=10)
+
+        # File selector for custom alert sound
+        tk.Button(settings, text="Select Alert Sound File", command=self.select_alert_file, width=22).grid(row=5, column=2, padx=10)
 
         # ================= CONTROLS =================
         controls = tk.Frame(self.root, bg="black")
@@ -119,7 +123,7 @@ class ShotClock:
 
     # ================= COLOR PICKERS =================
     def choose_normal_color(self):
-        color = colorchooser.askcolor()[1]  # Returns (#RRGGBB)
+        color = colorchooser.askcolor()[1]
         if color:
             self.normal_color.delete(0, tk.END)
             self.normal_color.insert(0, color)
@@ -129,6 +133,24 @@ class ShotClock:
         if color:
             self.alert_color.delete(0, tk.END)
             self.alert_color.insert(0, color)
+
+    # ================= ALERT SOUND =================
+    def select_alert_file(self):
+        file_path = filedialog.askopenfilename(
+            title="Select Alert Sound",
+            filetypes=(("WAV files", "*.wav"), ("All files", "*.*"))
+        )
+        if file_path:
+            self.alert_file_path = file_path
+
+    def play_alert_sound(self, duration=150):
+        if not self.buzzer_enabled.get():
+            return
+
+        if self.alert_file_path:
+            winsound.PlaySound(self.alert_file_path, winsound.SND_ASYNC)
+        else:
+            winsound.Beep(1200, duration)
 
     # ================= MODE CONTROL =================
     def entry_focus_on(self, event):
@@ -145,20 +167,22 @@ class ShotClock:
             self.update_display()
 
             alert = int(self.alert_time.get())
-            if self.buzzer_enabled.get() and 0 < self.time_left <= alert:
-                winsound.Beep(1200, 150)
+            if 0 < self.time_left <= alert:
+                self.play_alert_sound()  # alert sound for countdown
 
             self.root.after(1000, self.update_timer)
 
-        elif self.time_left == 0 and self.buzzer_enabled.get():
-            winsound.Beep(2000, 800)
+        elif self.time_left == 0 and self.running:
+            self.running = False  # stop the timer
+            self.update_display()
+            # Play time-up beep only once
+            self.play_alert_sound(duration=500)
 
     def update_display(self):
         value = str(self.time_left)
         self.controller_display.config(text=value)
         self.display_label.config(text=value)
 
-        # Update colors based on alert threshold
         alert = int(self.alert_time.get())
         color = self.alert_color.get() if self.time_left <= alert else self.normal_color.get()
         self.controller_display.config(fg=color)
@@ -185,5 +209,6 @@ class ShotClock:
 
     def exit_all(self):
         self.root.destroy()
+
 
 ShotClock()
