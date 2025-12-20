@@ -1,5 +1,5 @@
 import tkinter as tk
-import winsound  # Windows buzzer
+import winsound
 
 class ShotClock:
     def __init__(self):
@@ -12,7 +12,7 @@ class ShotClock:
         self.running = False
 
         # ================= DISPLAY WINDOW =================
-        self.display_window = tk.Tk()
+        self.display_window = tk.Toplevel(self.root)
         self.display_window.title("Shot Clock Display")
         self.display_window.state("zoomed")
         self.display_window.configure(bg="black")
@@ -21,7 +21,7 @@ class ShotClock:
             self.display_window,
             text="40",
             font=("Arial", 250, "bold"),
-            fg="red",
+            fg="White",
             bg="black"
         )
         self.display_label.pack(expand=True)
@@ -31,10 +31,20 @@ class ShotClock:
             self.root,
             text="40",
             font=("Arial", 150, "bold"),
-            fg="red",
+            fg="white",
             bg="black"
         )
         self.controller_display.pack(pady=20)
+
+        # ================= CURSOR / MODE INDICATOR =================
+        self.mode_label = tk.Label(
+            self.root,
+            text="HOTKEY MODE",
+            fg="lime",
+            bg="black",
+            font=("Arial", 16, "bold")
+        )
+        self.mode_label.pack(pady=5)
 
         # ================= SETTINGS =================
         settings = tk.Frame(self.root, bg="black")
@@ -48,15 +58,14 @@ class ShotClock:
         controls = tk.Frame(self.root, bg="black")
         controls.pack(pady=30)
 
-        self.create_button(controls, "START", self.start, 0)
-        self.create_button(controls, "PAUSE", self.pause, 1)
-        self.create_button(controls, "STOP", self.stop, 2)
-        self.create_button(controls, "RESET", self.reset, 3)
-        self.create_button(controls, "EXTENSION", self.add_extension, 4)
+        self.create_button(controls, "START (S)", self.start, 0)
+        self.create_button(controls, "PAUSE (P)", self.pause, 1)
+        self.create_button(controls, "RESET (X)", self.reset, 2)
+        self.create_button(controls, "EXTENSION (SPACE)", self.add_extension, 3)
 
         # ================= BUZZER =================
         self.buzzer_enabled = tk.BooleanVar(value=True)
-        buzzer_check = tk.Checkbutton(
+        tk.Checkbutton(
             self.root,
             text="Enable Alerts",
             variable=self.buzzer_enabled,
@@ -64,11 +73,14 @@ class ShotClock:
             bg="black",
             font=("Arial", 18),
             selectcolor="black"
-        )
-        buzzer_check.pack()
+        ).pack()
 
-        # Exit shortcut
-        self.root.bind("<Escape>", lambda e: self.exit_all())
+        # ================= GLOBAL HOTKEYS =================
+        self.root.bind_all("<s>", lambda e: self.start())
+        self.root.bind_all("<p>", lambda e: self.pause())
+        self.root.bind_all("<x>", lambda e: self.reset())
+        self.root.bind_all("<space>", lambda e: self.add_extension())
+        self.root.bind_all("<Escape>", lambda e: self.exit_all())
 
         self.root.mainloop()
 
@@ -78,9 +90,15 @@ class ShotClock:
             parent, text=label, fg="white", bg="black", font=("Arial", 18)
         ).grid(row=row, column=0, padx=10, pady=5)
 
-        entry = tk.Entry(parent, font=("Arial", 18), width=5)
+        entry = tk.Entry(parent, font=("Arial", 18), width=6, justify="center")
         entry.insert(0, default)
         entry.grid(row=row, column=1)
+
+        # ENTER / ESC exits typing mode
+        entry.bind("<FocusIn>", self.entry_focus_on)
+        entry.bind("<Return>", self.exit_entry_mode)
+        entry.bind("<Escape>", self.exit_entry_mode)
+
         return entry
 
     def create_button(self, parent, text, command, col):
@@ -88,9 +106,17 @@ class ShotClock:
             parent,
             text=text,
             font=("Arial", 18, "bold"),
-            width=10,
+            width=14,
             command=command
         ).grid(row=0, column=col, padx=10)
+
+    # ================= MODE CONTROL =================
+    def entry_focus_on(self, event):
+        self.mode_label.config(text="EDIT MODE", fg="yellow")
+
+    def exit_entry_mode(self, event=None):
+        self.root.focus_set()
+        self.mode_label.config(text="HOTKEY MODE", fg="lime")
 
     # ================= TIMER LOGIC =================
     def update_timer(self):
@@ -99,7 +125,7 @@ class ShotClock:
             self.update_display()
 
             alert = int(self.alert_time.get())
-            if self.buzzer_enabled.get() and self.time_left <= alert and self.time_left > 0:
+            if self.buzzer_enabled.get() and 0 < self.time_left <= alert:
                 winsound.Beep(1200, 150)
 
             self.root.after(1000, self.update_timer)
@@ -108,22 +134,19 @@ class ShotClock:
             winsound.Beep(2000, 800)
 
     def update_display(self):
-        self.controller_display.config(text=str(self.time_left))
-        self.display_label.config(text=str(self.time_left))
+        value = str(self.time_left)
+        self.controller_display.config(text=value)
+        self.display_label.config(text=value)
 
-    # ================= BUTTON ACTIONS =================
+    # ================= ACTIONS =================
     def start(self):
         if not self.running:
+            self.exit_entry_mode()
             self.running = True
             self.update_timer()
 
     def pause(self):
         self.running = False
-
-    def stop(self):
-        self.running = False
-        self.time_left = 0
-        self.update_display()
 
     def reset(self):
         self.running = False
@@ -135,8 +158,6 @@ class ShotClock:
         self.update_display()
 
     def exit_all(self):
-        self.display_window.destroy()
         self.root.destroy()
-
 
 ShotClock()
