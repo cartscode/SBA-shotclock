@@ -10,6 +10,7 @@ FONT_BTN = ("Arial", 16, "bold")
 class ShotClock:
     def __init__(self):
         self.root = tk.Tk()
+        self.root.iconbitmap("sba_shotclock.ico")
         self.root.title("Shot Clock Controller")
         self.root.state("zoomed")
         self.root.configure(bg="black")
@@ -20,6 +21,7 @@ class ShotClock:
 
         # ================= DISPLAY WINDOW =================
         self.display_window = tk.Toplevel(self.root)
+        self.display_window.iconbitmap("sba_shotclock.ico")
         self.display_window.title("Shot Clock Display")
         self.display_window.state("zoomed")
         self.display_window.configure(bg="black")
