@@ -11,7 +11,7 @@ FONT_BTN = ("Arial", 11, "bold")
 
 def resource_path(relative_path):
     try:
-        base_path = sys._MEIPASS  # PyInstaller temp folder
+        base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
@@ -27,14 +27,17 @@ class ShotClock:
         self.running = False
         self.time_left = 40
         self.alert_file_path = None
-        self.timer_id = None  # Store after() ID
+        self.timer_id = None
+
+        # Register numeric validator
+        self.vcmd_number = (self.root.register(self.validate_number), "%P")
 
         # ================= DISPLAY WINDOW =================
         self.display_window = tk.Toplevel(self.root)
         self.display_window.iconbitmap(resource_path("sba_shotclock.ico"))
         self.display_window.title("Shot Clock Display")
         self.display_window.state("zoomed")
-        self.display_window.configure(bg="black")  # Background for OBS chroma key
+        self.display_window.configure(bg="black")
         self.display_window.deiconify()
 
         self.display_label = tk.Label(
@@ -69,12 +72,12 @@ class ShotClock:
         panel = tk.Frame(self.root, bg="#111", bd=2, relief="ridge")
         panel.pack(pady=20, padx=20)
 
-        self.start_game_value = self.create_entry(panel, "Start Game At", "40", 0)
-        self.shot_duration = self.create_entry(panel, "Shot Duration", "30", 1)
-        self.extension = self.create_entry(panel, "Extension", "15", 2)
-        self.alert_time = self.create_entry(panel, "Alert At", "10", 3)
-        self.normal_color = self.create_entry(panel, "Normal Color", "white", 4)
-        self.alert_color = self.create_entry(panel, "Alert Color", "red", 5)
+        self.start_game_value = self.create_entry(panel, "Start Game At", "40", 0, numeric=True)
+        self.shot_duration   = self.create_entry(panel, "Shot Duration", "30", 1, numeric=True)
+        self.extension       = self.create_entry(panel, "Extension", "15", 2, numeric=True)
+        self.alert_time      = self.create_entry(panel, "Alert At", "10", 3, numeric=True)
+        self.normal_color    = self.create_entry(panel, "Normal Color", "white", 4)
+        self.alert_color     = self.create_entry(panel, "Alert Color", "red", 5)
 
         self.btn_pick_normal = tk.Button(panel, text="Pick Normal Color", command=self.choose_normal_color)
         self.btn_pick_normal.grid(row=4, column=2, padx=10)
@@ -131,16 +134,31 @@ class ShotClock:
         self.start_game_value.focus_set()
         self.root.mainloop()
 
+    # ================= VALIDATION =================
+    def validate_number(self, value):
+        return value.isdigit() or value == ""
+
     # ================= HELPERS =================
-    def create_entry(self, parent, label, default, row):
+    def create_entry(self, parent, label, default, row, numeric=False):
         tk.Label(parent, text=label, fg="white", bg="#111", font=FONT_LABEL)\
             .grid(row=row, column=0, sticky="e", padx=10, pady=6)
-        entry = tk.Entry(parent, font=FONT_LABEL, width=8, justify="center")
+
+        entry = tk.Entry(
+            parent,
+            font=FONT_LABEL,
+            width=8,
+            justify="center",
+            validate="key" if numeric else "none",
+            validatecommand=self.vcmd_number if numeric else None
+        )
+
         entry.insert(0, default)
         entry.grid(row=row, column=1)
+
         entry.bind("<FocusIn>", lambda e: self.mode_label.config(text="EDIT MODE", fg="yellow"))
         entry.bind("<Return>", self.exit_entry_mode)
         entry.bind("<Escape>", self.exit_entry_mode)
+
         return entry
 
     def create_button(self, parent, text, cmd, col):
