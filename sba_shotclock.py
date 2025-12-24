@@ -34,9 +34,7 @@ class ShotClock:
         self.display_window.iconbitmap(resource_path("sba_shotclock.ico"))
         self.display_window.title("Shot Clock Display")
         self.display_window.state("zoomed")
-        self.display_window.configure(bg="black")
-        self.display_window.attributes("-topmost", True)
-        self.display_window.withdraw()
+        self.display_window.configure(bg="black")  # Background for OBS chroma key
         self.display_window.deiconify()
 
         self.display_label = tk.Label(
@@ -46,7 +44,7 @@ class ShotClock:
             fg="white",
             bg="black"
         )
-        self.display_label.pack(expand=True)
+        self.display_label.pack(expand=True, fill="both")
 
         # ================= TOP DISPLAY =================
         self.controller_display = tk.Label(
@@ -131,10 +129,6 @@ class ShotClock:
         self.root.bind_all("<Escape>", lambda e: self.root.destroy())
 
         self.start_game_value.focus_set()
-        self.display_window.attributes("-topmost", True)
-        self.display_window.attributes("-toolwindow", False)
-        self.display_window.update_idletasks()
-        self.display_window.deiconify()
         self.root.mainloop()
 
     # ================= HELPERS =================
