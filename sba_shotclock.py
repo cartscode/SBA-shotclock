@@ -4,10 +4,10 @@ import winsound
 import sys
 import os
 
-FONT_MAIN = ("Arial", 180, "bold")
-FONT_CTRL = ("Arial", 120, "bold")
-FONT_LABEL = ("Arial", 16)
-FONT_BTN = ("Arial", 16, "bold")
+FONT_MAIN = ("Arial", 110, "bold")
+FONT_CTRL = ("Arial", 90, "bold")
+FONT_LABEL = ("Arial", 11)
+FONT_BTN = ("Arial", 11, "bold")
 
 def resource_path(relative_path):
     try:
