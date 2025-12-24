@@ -3,12 +3,14 @@ from tkinter import colorchooser, filedialog
 import winsound
 import sys
 import os
+import time
+
 FONT_MAIN = ("Arial", 180, "bold")
 FONT_CTRL = ("Arial", 120, "bold")
 FONT_LABEL = ("Arial", 16)
 FONT_BTN = ("Arial", 16, "bold")
-def resource_path(relative_path):
 
+def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS  # PyInstaller temp folder
     except Exception:
@@ -25,6 +27,7 @@ class ShotClock:
 
         self.running = False
         self.time_left = 40
+        self.end_time = None
         self.alert_file_path = None
 
         # ================= DISPLAY WINDOW =================
@@ -33,6 +36,9 @@ class ShotClock:
         self.display_window.title("Shot Clock Display")
         self.display_window.state("zoomed")
         self.display_window.configure(bg="black")
+        self.display_window.attributes("-topmost", True)
+        self.display_window.withdraw()
+        self.display_window.deiconify()
 
         self.display_label = tk.Label(
             self.display_window,
@@ -104,7 +110,7 @@ class ShotClock:
         self.create_button(controls, "RESET (X)", self.reset, 3)
         self.create_button(controls, "EXTEND (SPACE)", self.add_extension, 4)
 
-        # ================= EDITABLE WIDGETS (ADDED) =================
+        # ================= EDITABLE WIDGETS =================
         self.edit_widgets = [
             self.start_game_value,
             self.shot_duration,
@@ -126,6 +132,10 @@ class ShotClock:
         self.root.bind_all("<Escape>", lambda e: self.root.destroy())
 
         self.start_game_value.focus_set()
+        self.display_window.attributes("-topmost", True)
+        self.display_window.attributes("-toolwindow", False)
+        self.display_window.update_idletasks()
+        self.display_window.deiconify()
         self.root.mainloop()
 
     # ================= HELPERS =================
@@ -144,7 +154,6 @@ class ShotClock:
         tk.Button(parent, text=text, font=FONT_BTN, width=16, command=cmd)\
             .grid(row=0, column=col, padx=8)
 
-    # ================= LOCK / UNLOCK (ADDED) =================
     def lock_editing(self):
         for w in self.edit_widgets:
             w.config(state="disabled")
@@ -182,14 +191,19 @@ class ShotClock:
         else:
             winsound.Beep(1200, 150)
 
-    # ================= TIMER =================
+    # ================= TIMER (Precise) =================
     def update_timer(self):
-        if self.running and self.time_left > 0:
-            self.time_left -= 1
+        if self.running:
+            # calculate remaining time based on end_time
+            self.time_left = max(0, int(self.end_time - time.time()))
             self.update_display()
             if self.time_left <= int(self.alert_time.get()):
                 self.play_alert_sound()
-            self.root.after(1000, self.update_timer)
+            if self.time_left > 0:
+                self.root.after(200, self.update_timer)  # frequent updates for accuracy
+            else:
+                self.running = False
+                self.unlock_editing()
 
     def update_display(self):
         val = str(self.time_left)
@@ -203,27 +217,31 @@ class ShotClock:
         self.running = False
         self.time_left = int(self.start_game_value.get())
         self.update_display()
-        self.unlock_editing()   # ADDED
+        self.unlock_editing()
 
     def start(self):
         if not self.running:
             self.running = True
-            self.lock_editing()  # ADDED
+            self.lock_editing()
             self.mode_label.config(text="HOTKEY MODE", fg="lime")
+            self.end_time = time.time() + self.time_left
             self.update_timer()
 
     def pause(self):
         self.running = False
-        self.unlock_editing()   # ADDED
+        self.time_left = max(0, int(self.end_time - time.time())) if self.end_time else self.time_left
+        self.unlock_editing()
 
     def reset(self):
         self.running = False
         self.time_left = int(self.shot_duration.get())
         self.update_display()
-        self.unlock_editing()   # ADDED
+        self.unlock_editing()
 
     def add_extension(self):
         self.time_left += int(self.extension.get())
+        if self.running:
+            self.end_time += int(self.extension.get())
         self.update_display()
 
     def exit_entry_mode(self, event=None):
