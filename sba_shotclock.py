@@ -3,7 +3,6 @@ from tkinter import colorchooser, filedialog
 import winsound
 import sys
 import os
-import time
 
 FONT_MAIN = ("Arial", 180, "bold")
 FONT_CTRL = ("Arial", 120, "bold")
@@ -27,8 +26,8 @@ class ShotClock:
 
         self.running = False
         self.time_left = 40
-        self.end_time = None
         self.alert_file_path = None
+        self.timer_id = None  # Store after() ID
 
         # ================= DISPLAY WINDOW =================
         self.display_window = tk.Toplevel(self.root)
@@ -154,6 +153,7 @@ class ShotClock:
         tk.Button(parent, text=text, font=FONT_BTN, width=16, command=cmd)\
             .grid(row=0, column=col, padx=8)
 
+    # ================= LOCK / UNLOCK =================
     def lock_editing(self):
         for w in self.edit_widgets:
             w.config(state="disabled")
@@ -191,19 +191,18 @@ class ShotClock:
         else:
             winsound.Beep(1200, 150)
 
-    # ================= TIMER (Precise) =================
+    # ================= TIMER =================
     def update_timer(self):
-        if self.running:
-            # calculate remaining time based on end_time
-            self.time_left = max(0, int(self.end_time - time.time()))
+        if self.running and self.time_left > 0:
+            self.time_left -= 1
             self.update_display()
             if self.time_left <= int(self.alert_time.get()):
                 self.play_alert_sound()
-            if self.time_left > 0:
-                self.root.after(200, self.update_timer)  # frequent updates for accuracy
-            else:
-                self.running = False
-                self.unlock_editing()
+            self.timer_id = self.root.after(1000, self.update_timer)
+        else:
+            self.running = False
+            self.timer_id = None
+            self.unlock_editing()
 
     def update_display(self):
         val = str(self.time_left)
@@ -215,6 +214,9 @@ class ShotClock:
     # ================= ACTIONS =================
     def start_game(self):
         self.running = False
+        if self.timer_id:
+            self.root.after_cancel(self.timer_id)
+            self.timer_id = None
         self.time_left = int(self.start_game_value.get())
         self.update_display()
         self.unlock_editing()
@@ -224,29 +226,32 @@ class ShotClock:
             self.running = True
             self.lock_editing()
             self.mode_label.config(text="HOTKEY MODE", fg="lime")
-            self.end_time = time.time() + self.time_left
+            if self.timer_id:
+                self.root.after_cancel(self.timer_id)
             self.update_timer()
 
     def pause(self):
         self.running = False
-        self.time_left = max(0, int(self.end_time - time.time())) if self.end_time else self.time_left
+        if self.timer_id:
+            self.root.after_cancel(self.timer_id)
+            self.timer_id = None
         self.unlock_editing()
 
     def reset(self):
         self.running = False
+        if self.timer_id:
+            self.root.after_cancel(self.timer_id)
+            self.timer_id = None
         self.time_left = int(self.shot_duration.get())
         self.update_display()
         self.unlock_editing()
 
     def add_extension(self):
         self.time_left += int(self.extension.get())
-        if self.running:
-            self.end_time += int(self.extension.get())
         self.update_display()
 
     def exit_entry_mode(self, event=None):
         self.root.focus_set()
         self.mode_label.config(text="HOTKEY MODE", fg="lime")
-
 
 ShotClock()
