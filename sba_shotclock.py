@@ -1,16 +1,24 @@
 import tkinter as tk
 from tkinter import colorchooser, filedialog
 import winsound
-
+import sys
+import os
 FONT_MAIN = ("Arial", 180, "bold")
 FONT_CTRL = ("Arial", 120, "bold")
 FONT_LABEL = ("Arial", 16)
 FONT_BTN = ("Arial", 16, "bold")
+def resource_path(relative_path):
+
+    try:
+        base_path = sys._MEIPASS  # PyInstaller temp folder
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 class ShotClock:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.iconbitmap("sba_shotclock.ico")
+        self.root.iconbitmap(resource_path("sba_shotclock.ico"))
         self.root.title("Shot Clock Controller")
         self.root.state("zoomed")
         self.root.configure(bg="black")
@@ -21,7 +29,7 @@ class ShotClock:
 
         # ================= DISPLAY WINDOW =================
         self.display_window = tk.Toplevel(self.root)
-        self.display_window.iconbitmap("sba_shotclock.ico")
+        self.display_window.iconbitmap(resource_path("sba_shotclock.ico"))
         self.display_window.title("Shot Clock Display")
         self.display_window.state("zoomed")
         self.display_window.configure(bg="black")
