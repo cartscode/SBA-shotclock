@@ -4,7 +4,7 @@ import winsound
 import sys
 import os
 
-FONT_MAIN = ("Arial", 110, "bold")
+FONT_MAIN = ("Arial", 520, "bold")
 FONT_CTRL = ("Arial", 90, "bold")
 FONT_LABEL = ("Arial", 11)
 FONT_BTN = ("Arial", 11, "bold")
