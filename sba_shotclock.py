@@ -1,14 +1,26 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog
+from tkinter import colorchooser, filedialog, simpledialog, messagebox
 import winsound
 import sys
 import os
+import smtplib
+from email.message import EmailMessage
+import secrets
 
+# ================= FONTS =================
 FONT_MAIN = ("Arial", 520, "bold")
 FONT_CTRL = ("Arial", 90, "bold")
 FONT_LABEL = ("Arial", 11)
 FONT_BTN = ("Arial", 11, "bold")
 
+# ================= EMAIL CONFIG =================
+ADMIN_EMAIL = "cartercarig@gmail.com"     # Your email to receive OTP
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+EMAIL_USER = "cartercarig@gmail.com"      # Your email account
+EMAIL_PASS = "scfm nzrn gbef bisy"           # App password if Gmail
+
+# ================= RESOURCE PATH =================
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
@@ -16,8 +28,53 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
+# ================= SHOT CLOCK CLASS =================
 class ShotClock:
+    # ================= OTP FUNCTIONS =================
+    def generate_otp(self, length=6):
+        return ''.join(secrets.choice("0123456789") for _ in range(length))
+
+    def send_otp_email(self, otp):
+        msg = EmailMessage()
+        msg['Subject'] = "Your ShotClock OTP"
+        msg['From'] = EMAIL_USER
+        msg['To'] = ADMIN_EMAIL
+        msg.set_content(f"Your ShotClock OTP is: {otp}")
+        try:
+            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+            server.starttls()
+            server.login(EMAIL_USER, EMAIL_PASS)
+            server.send_message(msg)
+            server.quit()
+            return True
+        except Exception as e:
+            print("Error sending OTP email:", e)
+            return False
+
+    def request_otp(self):
+        otp = self.generate_otp()
+        if self.send_otp_email(otp):
+            user_input = simpledialog.askstring("OTP Verification", "Enter the OTP sent to admin email:")
+            if user_input != otp:
+                messagebox.showerror("Access Denied", "Incorrect OTP! Exiting...")
+                return False
+            else:
+                messagebox.showinfo("Access Granted", "OTP verified successfully!")
+                return True
+        else:
+            messagebox.showerror("Error", "Failed to send OTP. Check email settings. Exiting...")
+            return False
+
+    # ================= INIT =================
     def __init__(self):
+        # Temporary root for OTP dialog
+        temp_root = tk.Tk()
+        temp_root.withdraw()
+        if not self.request_otp():
+            temp_root.destroy()
+            return
+        temp_root.destroy()
+
         self.root = tk.Tk()
         self.root.iconbitmap(resource_path("sba_shotclock.ico"))
         self.root.title("Shot Clock Controller")
@@ -266,4 +323,5 @@ class ShotClock:
         self.root.focus_set()
         self.mode_label.config(text="HOTKEY MODE", fg="lime")
 
+# ================= RUN APP =================
 ShotClock()
