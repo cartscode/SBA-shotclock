@@ -3,9 +3,10 @@ from tkinter import colorchooser, filedialog, simpledialog, messagebox
 import winsound
 import sys
 import os
+import time
+import secrets
 import smtplib
 from email.message import EmailMessage
-import secrets
 
 # ================= FONTS =================
 FONT_MAIN = ("Arial", 520, "bold")
@@ -14,11 +15,11 @@ FONT_LABEL = ("Arial", 11)
 FONT_BTN = ("Arial", 11, "bold")
 
 # ================= EMAIL CONFIG =================
-ADMIN_EMAIL = "cartercarig@gmail.com"     # Your email to receive OTP
+ADMIN_EMAIL = "cartercarig@gmail.com"     
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-EMAIL_USER = "cartercarig@gmail.com"      # Your email account
-EMAIL_PASS = "scfm nzrn gbef bisy"           # App password if Gmail
+EMAIL_USER = "cartercarig@gmail.com"      
+EMAIL_PASS = "scfm nzrn gbef bisy"       
 
 # ================= RESOURCE PATH =================
 def resource_path(relative_path):
@@ -30,7 +31,7 @@ def resource_path(relative_path):
 
 # ================= SHOT CLOCK CLASS =================
 class ShotClock:
-    # ================= OTP FUNCTIONS =================
+    # ---- OTP FUNCTIONS ----
     def generate_otp(self, length=6):
         return ''.join(secrets.choice("0123456789") for _ in range(length))
 
@@ -65,9 +66,8 @@ class ShotClock:
             messagebox.showerror("Error", "Failed to send OTP. Check email settings. Exiting...")
             return False
 
-    # ================= INIT =================
+    # ---- INIT ----
     def __init__(self):
-        # Temporary root for OTP dialog
         temp_root = tk.Tk()
         temp_root.withdraw()
         if not self.request_otp():
@@ -85,11 +85,11 @@ class ShotClock:
         self.time_left = 40
         self.alert_file_path = None
         self.timer_id = None
+        self.last_alert_played = None
 
-        # Register numeric validator
         self.vcmd_number = (self.root.register(self.validate_number), "%P")
 
-        # ================= DISPLAY WINDOW =================
+        # ---- DISPLAY WINDOW ----
         self.display_window = tk.Toplevel(self.root)
         self.display_window.iconbitmap(resource_path("sba_shotclock.ico"))
         self.display_window.title("Shot Clock Display")
@@ -106,7 +106,7 @@ class ShotClock:
         )
         self.display_label.pack(expand=True, fill="both")
 
-        # ================= TOP DISPLAY =================
+        # ---- CONTROLLER DISPLAY ----
         self.controller_display = tk.Label(
             self.root,
             text="40",
@@ -125,7 +125,7 @@ class ShotClock:
         )
         self.mode_label.pack(pady=5)
 
-        # ================= SETTINGS PANEL =================
+        # ---- SETTINGS PANEL ----
         panel = tk.Frame(self.root, bg="#111", bd=2, relief="ridge")
         panel.pack(pady=20, padx=20)
 
@@ -145,7 +145,6 @@ class ShotClock:
         self.btn_sound = tk.Button(panel, text="Select Alert Sound", command=self.select_alert_file)
         self.btn_sound.grid(row=6, column=2, pady=5)
 
-        # ================= BUZZER =================
         self.buzzer_enabled = tk.BooleanVar(value=True)
         tk.Checkbutton(
             panel,
@@ -157,7 +156,7 @@ class ShotClock:
             font=FONT_LABEL
         ).grid(row=6, column=0, columnspan=2, pady=10)
 
-        # ================= CONTROLS =================
+        # ---- CONTROLS ----
         controls = tk.Frame(self.root, bg="black")
         controls.pack(pady=30)
 
@@ -167,7 +166,6 @@ class ShotClock:
         self.create_button(controls, "RESET (X)", self.reset, 3)
         self.create_button(controls, "EXTEND (SPACE)", self.add_extension, 4)
 
-        # ================= EDITABLE WIDGETS =================
         self.edit_widgets = [
             self.start_game_value,
             self.shot_duration,
@@ -180,7 +178,7 @@ class ShotClock:
             self.btn_sound
         ]
 
-        # ================= HOTKEYS =================
+        # ---- HOTKEYS ----
         self.root.bind_all("<s>", lambda e: self.start())
         self.root.bind_all("<p>", lambda e: self.pause())
         self.root.bind_all("<x>", lambda e: self.reset())
@@ -191,15 +189,14 @@ class ShotClock:
         self.start_game_value.focus_set()
         self.root.mainloop()
 
-    # ================= VALIDATION =================
+    # ---- VALIDATION ----
     def validate_number(self, value):
         return value.isdigit() or value == ""
 
-    # ================= HELPERS =================
+    # ---- HELPERS ----
     def create_entry(self, parent, label, default, row, numeric=False):
         tk.Label(parent, text=label, fg="white", bg="#111", font=FONT_LABEL)\
             .grid(row=row, column=0, sticky="e", padx=10, pady=6)
-
         entry = tk.Entry(
             parent,
             font=FONT_LABEL,
@@ -208,32 +205,18 @@ class ShotClock:
             validate="key" if numeric else "none",
             validatecommand=self.vcmd_number if numeric else None
         )
-
         entry.insert(0, default)
         entry.grid(row=row, column=1)
-
         entry.bind("<FocusIn>", lambda e: self.mode_label.config(text="EDIT MODE", fg="yellow"))
         entry.bind("<Return>", self.exit_entry_mode)
         entry.bind("<Escape>", self.exit_entry_mode)
-
         return entry
 
     def create_button(self, parent, text, cmd, col):
         tk.Button(parent, text=text, font=FONT_BTN, width=16, command=cmd)\
             .grid(row=0, column=col, padx=8)
 
-    # ================= LOCK / UNLOCK =================
-    def lock_editing(self):
-        for w in self.edit_widgets:
-            w.config(state="disabled")
-        self.mode_label.config(text="LOCKED (RUNNING)", fg="red")
-
-    def unlock_editing(self):
-        for w in self.edit_widgets:
-            w.config(state="normal")
-        self.mode_label.config(text="EDIT MODE", fg="yellow")
-
-    # ================= COLORS =================
+    # ---- COLORS ----
     def choose_normal_color(self):
         c = colorchooser.askcolor()[1]
         if c:
@@ -246,7 +229,7 @@ class ShotClock:
             self.alert_color.delete(0, tk.END)
             self.alert_color.insert(0, c)
 
-    # ================= SOUND =================
+    # ---- SOUND ----
     def select_alert_file(self):
         self.alert_file_path = filedialog.askopenfilename(
             filetypes=(("WAV files", "*.wav"),)
@@ -260,18 +243,25 @@ class ShotClock:
         else:
             winsound.Beep(1200, 150)
 
-    # ================= TIMER =================
+    # ---- TIMER ----
     def update_timer(self):
         if self.running and self.time_left > 0:
-            self.time_left -= 1
-            self.update_display()
-            if self.time_left <= int(self.alert_time.get()):
+            self.time_left -= 1  # Countdown per second
+
+            # Play alert if below alert time
+            alert = int(self.alert_time.get())
+            if self.time_left <= alert and self.last_alert_played != self.time_left:
                 self.play_alert_sound()
-            self.timer_id = self.root.after(1000, self.update_timer)
-        else:
-            self.running = False
-            self.timer_id = None
-            self.unlock_editing()
+                self.last_alert_played = self.time_left
+
+            self.update_display()
+
+            if self.time_left > 0:
+                self.timer_id = self.root.after(1000, self.update_timer)
+            else:
+                self.running = False
+                self.unlock_editing()
+                self.play_alert_sound()  # Ensure buzzer at 0
 
     def update_display(self):
         val = str(self.time_left)
@@ -280,13 +270,14 @@ class ShotClock:
         self.controller_display.config(text=val, fg=color)
         self.display_label.config(text=val, fg=color)
 
-    # ================= ACTIONS =================
+    # ---- ACTIONS ----
     def start_game(self):
         self.running = False
         if self.timer_id:
             self.root.after_cancel(self.timer_id)
             self.timer_id = None
         self.time_left = int(self.start_game_value.get())
+        self.last_alert_played = None
         self.update_display()
         self.unlock_editing()
 
@@ -295,9 +286,9 @@ class ShotClock:
             self.running = True
             self.lock_editing()
             self.mode_label.config(text="HOTKEY MODE", fg="lime")
-            if self.timer_id:
-                self.root.after_cancel(self.timer_id)
-            self.update_timer()
+            self.last_alert_played = None
+            self.update_display()  # Show exact start value immediately
+            self.timer_id = self.root.after(1000, self.update_timer)  # Start countdown after 1 second
 
     def pause(self):
         self.running = False
@@ -312,6 +303,7 @@ class ShotClock:
             self.root.after_cancel(self.timer_id)
             self.timer_id = None
         self.time_left = int(self.shot_duration.get())
+        self.last_alert_played = None
         self.update_display()
         self.unlock_editing()
 
@@ -319,9 +311,19 @@ class ShotClock:
         self.time_left += int(self.extension.get())
         self.update_display()
 
+    def lock_editing(self):
+        for w in self.edit_widgets:
+            w.config(state="disabled")
+        self.mode_label.config(text="LOCKED (RUNNING)", fg="red")
+
+    def unlock_editing(self):
+        for w in self.edit_widgets:
+            w.config(state="normal")
+        self.mode_label.config(text="EDIT MODE", fg="yellow")
+
     def exit_entry_mode(self, event=None):
         self.root.focus_set()
         self.mode_label.config(text="HOTKEY MODE", fg="lime")
 
-# ================= RUN APP =================
+# ---- RUN APP ----
 ShotClock()
