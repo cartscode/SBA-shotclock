@@ -142,6 +142,21 @@ class ShotClock:
     def validate_number(self, value):
         return value.isdigit() or value == ""
 
+    # ---- PRE-RUN CHECK FOR EMPTY FIELDS ----
+    def check_required_fields(self):
+        required = [
+            (self.start_game_value, "Start Game At"),
+            (self.shot_duration, "Shot Duration"),
+            (self.extension, "Extension"),
+            (self.alert_time, "Alert At")
+        ]
+        for entry, name in required:
+            if entry.get().strip() == "":
+                messagebox.showwarning("Warning", f"'{name}' cannot be empty!")
+                entry.focus_set()
+                return False
+        return True
+
     # ---- HELPERS ----
     def create_entry(self, parent, label, default, row, numeric=False):
         tk.Label(parent, text=label, fg="white", bg="#111", font=FONT_LABEL)\
@@ -217,6 +232,8 @@ class ShotClock:
 
     # ---- ACTIONS ----
     def start_game(self):
+        if not self.check_required_fields():
+            return
         self.running = False
         if self.timer_id:
             self.root.after_cancel(self.timer_id)
@@ -227,6 +244,8 @@ class ShotClock:
         self.unlock_editing()
 
     def start(self):
+        if not self.check_required_fields():
+            return
         if not self.running:
             self.running = True
             self.lock_editing()
@@ -243,6 +262,8 @@ class ShotClock:
         self.unlock_editing()
 
     def reset(self):
+        if not self.check_required_fields():
+            return
         self.running = False
         if self.timer_id:
             self.root.after_cancel(self.timer_id)
@@ -253,9 +274,12 @@ class ShotClock:
         self.unlock_editing()
 
     def add_extension(self):
+        if not self.check_required_fields():
+            return
         self.time_left += int(self.extension.get())
         self.update_display()
 
+    # ---- EDIT LOCK ----
     def lock_editing(self):
         for w in self.edit_widgets:
             w.config(state="disabled")
