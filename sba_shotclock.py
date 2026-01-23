@@ -81,7 +81,7 @@ class ShotClock:
         self.start_game_value = self.create_entry(panel, "Start Game At", "40", 0, numeric=True)
         self.shot_duration   = self.create_entry(panel, "Shot Duration", "30", 1, numeric=True)
         self.extension       = self.create_entry(panel, "Extension", "15", 2, numeric=True)
-        self.alert_time      = self.create_entry(panel, "Alert At", "10", 3, numeric=True)
+        self.alert_time      = self.create_entry(panel, "Alert At", "0", 3, numeric=True)
         self.normal_color    = self.create_entry(panel, "Normal Color", "white", 4)
         self.alert_color     = self.create_entry(panel, "Alert Color", "red", 5)
 
@@ -129,10 +129,14 @@ class ShotClock:
 
         # ---- HOTKEYS ----
         self.root.bind_all("<s>", lambda e: self.start())
+        self.root.bind_all("<S>", lambda e: self.start())
         self.root.bind_all("<p>", lambda e: self.pause())
+        self.root.bind_all("<P>", lambda e: self.pause())
         self.root.bind_all("<x>", lambda e: self.reset())
+        self.root.bind_all("<X>", lambda e: self.reset())
         self.root.bind_all("<space>", lambda e: self.add_extension())
         self.root.bind_all("<g>", lambda e: self.start_game())
+        self.root.bind_all("<G>", lambda e: self.start_game())
         self.root.bind_all("<Escape>", lambda e: self.root.destroy())
 
         self.start_game_value.focus_set()
