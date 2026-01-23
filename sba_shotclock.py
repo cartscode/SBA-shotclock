@@ -5,21 +5,12 @@ import sys
 import os
 import time
 import secrets
-import smtplib
-from email.message import EmailMessage
 
 # ================= FONTS =================
 FONT_MAIN = ("Arial", 520, "bold")
 FONT_CTRL = ("Arial", 90, "bold")
 FONT_LABEL = ("Arial", 11)
 FONT_BTN = ("Arial", 11, "bold")
-
-# ================= EMAIL CONFIG =================
-ADMIN_EMAIL = "cartercarig@gmail.com"     
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-EMAIL_USER = "cartercarig@gmail.com"      
-EMAIL_PASS = "scfm nzrn gbef bisy"       
 
 # ================= RESOURCE PATH =================
 def resource_path(relative_path):
@@ -31,50 +22,8 @@ def resource_path(relative_path):
 
 # ================= SHOT CLOCK CLASS =================
 class ShotClock:
-    # ---- OTP FUNCTIONS ----
-    def generate_otp(self, length=6):
-        return ''.join(secrets.choice("0123456789") for _ in range(length))
-
-    def send_otp_email(self, otp):
-        msg = EmailMessage()
-        msg['Subject'] = "Your ShotClock OTP"
-        msg['From'] = EMAIL_USER
-        msg['To'] = ADMIN_EMAIL
-        msg.set_content(f"Your ShotClock OTP is: {otp}")
-        try:
-            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-            server.starttls()
-            server.login(EMAIL_USER, EMAIL_PASS)
-            server.send_message(msg)
-            server.quit()
-            return True
-        except Exception as e:
-            print("Error sending OTP email:", e)
-            return False
-
-    def request_otp(self):
-        otp = self.generate_otp()
-        if self.send_otp_email(otp):
-            user_input = simpledialog.askstring("OTP Verification", "Enter the OTP sent to admin email:")
-            if user_input != otp:
-                messagebox.showerror("Access Denied", "Incorrect OTP! Exiting...")
-                return False
-            else:
-                messagebox.showinfo("Access Granted", "OTP verified successfully!")
-                return True
-        else:
-            messagebox.showerror("Error", "Failed to send OTP. Check email settings. Exiting...")
-            return False
-
     # ---- INIT ----
     def __init__(self):
-        temp_root = tk.Tk()
-        temp_root.withdraw()
-        if not self.request_otp():
-            temp_root.destroy()
-            return
-        temp_root.destroy()
-
         self.root = tk.Tk()
         self.root.iconbitmap(resource_path("sba_shotclock.ico"))
         self.root.title("Shot Clock Controller")
@@ -246,22 +195,18 @@ class ShotClock:
     # ---- TIMER ----
     def update_timer(self):
         if self.running and self.time_left > 0:
-            self.time_left -= 1  # Countdown per second
-
-            # Play alert if below alert time
+            self.time_left -= 1
             alert = int(self.alert_time.get())
             if self.time_left <= alert and self.last_alert_played != self.time_left:
                 self.play_alert_sound()
                 self.last_alert_played = self.time_left
-
             self.update_display()
-
             if self.time_left > 0:
                 self.timer_id = self.root.after(1000, self.update_timer)
             else:
                 self.running = False
                 self.unlock_editing()
-                self.play_alert_sound()  # Ensure buzzer at 0
+                self.play_alert_sound()
 
     def update_display(self):
         val = str(self.time_left)
@@ -287,8 +232,8 @@ class ShotClock:
             self.lock_editing()
             self.mode_label.config(text="HOTKEY MODE", fg="lime")
             self.last_alert_played = None
-            self.update_display()  # Show exact start value immediately
-            self.timer_id = self.root.after(1000, self.update_timer)  # Start countdown after 1 second
+            self.update_display()
+            self.timer_id = self.root.after(1000, self.update_timer)
 
     def pause(self):
         self.running = False
