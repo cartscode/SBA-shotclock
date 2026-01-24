@@ -1,302 +1,187 @@
 import tkinter as tk
-from tkinter import colorchooser, filedialog, simpledialog, messagebox
-import winsound
-import sys
-import os
-import time
-import secrets
+from tkinter import ttk
 
-# ================= FONTS =================
-FONT_MAIN = ("Arial", 520, "bold")
-FONT_CTRL = ("Arial", 90, "bold")
-FONT_LABEL = ("Arial", 11)
-FONT_BTN = ("Arial", 11, "bold")
+# ================== ROOT ==================
+root = tk.Tk()
+root.title("Scoreboard Software")
+root.geometry("1400x800")
+root.configure(bg="#000000")
 
-# ================= RESOURCE PATH =================
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
+# ================== STYLES ==================
+style = ttk.Style()
+style.theme_use("default")
 
-# ================= SHOT CLOCK CLASS =================
-class ShotClock:
-    # ---- INIT ----
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.iconbitmap(resource_path("sba_shotclock.ico"))
-        self.root.title("Shot Clock Controller")
-        self.root.state("zoomed")
-        self.root.configure(bg="black")
+style.configure("Card.TFrame", background="#121212")
+style.configure("Title.TLabel", background="#121212", foreground="white", font=("Arial", 16, "bold"))
+style.configure("Label.TLabel", background="#121212", foreground="white", font=("Arial", 12))
+style.configure("Entry.TEntry", font=("Arial", 11))
 
-        self.running = False
-        self.time_left = 40
-        self.alert_file_path = None
-        self.timer_id = None
-        self.last_alert_played = None
+# ================== MAIN CONTAINER ==================
+main = tk.Frame(root, bg="black")
+main.pack(fill="both", expand=True, padx=20, pady=20)
 
-        self.vcmd_number = (self.root.register(self.validate_number), "%P")
+# ================== TOP SECTION ==================
+top = tk.Frame(main, bg="black")
+top.pack(fill="x")
 
-        # ---- DISPLAY WINDOW ----
-        self.display_window = tk.Toplevel(self.root)
-        self.display_window.iconbitmap(resource_path("sba_shotclock.ico"))
-        self.display_window.title("Shot Clock Display")
-        self.display_window.state("zoomed")
-        self.display_window.configure(bg="black")
-        self.display_window.deiconify()
+# ---------- LEFT TEAM ----------
+left_team = ttk.Frame(top, style="Card.TFrame", padding=20)
+left_team.pack(side="left", fill="y", padx=10)
 
-        self.display_label = tk.Label(
-            self.display_window,
-            text="40",
-            font=FONT_MAIN,
-            fg="white",
-            bg="black"
-        )
-        self.display_label.pack(expand=True, fill="both")
+ttk.Label(left_team, text="Team", style="Title.TLabel").pack(anchor="w")
+ttk.Entry(left_team, width=25).pack(pady=5)
 
-        # ---- CONTROLLER DISPLAY ----
-        self.controller_display = tk.Label(
-            self.root,
-            text="40",
-            font=FONT_CTRL,
-            fg="white",
-            bg="black"
-        )
-        self.controller_display.pack(pady=10)
+ttk.Label(left_team, text="Player's Name", style="Label.TLabel").pack(anchor="w", pady=(10, 5))
 
-        self.mode_label = tk.Label(
-            self.root,
-            text="EDIT MODE",
-            fg="yellow",
-            bg="black",
-            font=("Arial", 14, "bold")
-        )
-        self.mode_label.pack(pady=5)
+for _ in range(5):
+    row = tk.Frame(left_team, bg="#121212")
+    row.pack(fill="x", pady=4)
+    tk.Button(row, text="Select", width=8).pack(side="left")
+    ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
 
-        # ---- SETTINGS PANEL ----
-        panel = tk.Frame(self.root, bg="#111", bd=2, relief="ridge")
-        panel.pack(pady=20, padx=20)
+# ---------- CENTER TIMER ----------
+center = ttk.Frame(top, style="Card.TFrame", padding=20)
+center.pack(side="left", expand=True, fill="both", padx=10)
 
-        self.start_game_value = self.create_entry(panel, "Start Game At", "40", 0, numeric=True)
-        self.shot_duration   = self.create_entry(panel, "Shot Duration", "30", 1, numeric=True)
-        self.extension       = self.create_entry(panel, "Extension", "15", 2, numeric=True)
-        self.alert_time      = self.create_entry(panel, "Alert At", "0", 3, numeric=True)
-        self.normal_color    = self.create_entry(panel, "Normal Color", "white", 4)
-        self.alert_color     = self.create_entry(panel, "Alert Color", "red", 5)
+ttk.Label(center, text="40", foreground="#FFFFFF", background="#121212",
+          font=("Arial", 48, "bold")).pack()
 
-        self.btn_pick_normal = tk.Button(panel, text="Pick Normal Color", command=self.choose_normal_color)
-        self.btn_pick_normal.grid(row=4, column=2, padx=10)
+ttk.Label(center, text="EDIT MODE", foreground="#FFD700",
+          background="#121212", font=("Arial", 14, "bold")).pack(pady=5)
 
-        self.btn_pick_alert = tk.Button(panel, text="Pick Alert Color", command=self.choose_alert_color)
-        self.btn_pick_alert.grid(row=5, column=2, padx=10)
+def config_row(parent, label):
+    row = tk.Frame(parent, bg="#121212")
+    row.pack(pady=4)
+    ttk.Label(row, text=label, style="Label.TLabel", width=15).pack(side="left")
+    ttk.Entry(row, width=10).pack(side="left")
 
-        self.btn_sound = tk.Button(panel, text="Select Alert Sound", command=self.select_alert_file)
-        self.btn_sound.grid(row=6, column=2, pady=5)
+config_row(center, "Start game at:")
+config_row(center, "Shot Duration:")
+config_row(center, "Extention:")
+config_row(center, "Alert At:")
 
-        self.buzzer_enabled = tk.BooleanVar(value=True)
-        tk.Checkbutton(
-            panel,
-            text="Enable Alerts",
-            variable=self.buzzer_enabled,
-            fg="white",
-            bg="#111",
-            selectcolor="#111",
-            font=FONT_LABEL
-        ).grid(row=6, column=0, columnspan=2, pady=10)
+color_row = tk.Frame(center, bg="#121212")
+color_row.pack(pady=5)
+ttk.Label(color_row, text="Normal Color:", style="Label.TLabel").pack(side="left")
+ttk.Entry(color_row, width=10).pack(side="left", padx=5)
+tk.Button(color_row, text="Select").pack(side="left")
 
-        # ---- CONTROLS ----
-        controls = tk.Frame(self.root, bg="black")
-        controls.pack(pady=30)
+color_row2 = tk.Frame(center, bg="#121212")
+color_row2.pack(pady=5)
+ttk.Label(color_row2, text="Alert Color:", style="Label.TLabel").pack(side="left")
+ttk.Entry(color_row2, width=10).pack(side="left", padx=5)
+tk.Button(color_row2, text="Select").pack(side="left")
 
-        self.create_button(controls, "START GAME (G)", self.start_game, 0)
-        self.create_button(controls, "START (S)", self.start, 1)
-        self.create_button(controls, "PAUSE (P)", self.pause, 2)
-        self.create_button(controls, "RESET (X)", self.reset, 3)
-        self.create_button(controls, "EXTEND (SPACE)", self.add_extension, 4)
+alert_row = tk.Frame(center, bg="#121212")
+alert_row.pack(pady=10)
+tk.Checkbutton(alert_row, text="Enable Alert", fg="white",
+               bg="#121212", selectcolor="#121212").pack(side="left")
+tk.Button(alert_row, text="Select").pack(side="left", padx=5)
 
-        self.edit_widgets = [
-            self.start_game_value,
-            self.shot_duration,
-            self.extension,
-            self.alert_time,
-            self.normal_color,
-            self.alert_color,
-            self.btn_pick_normal,
-            self.btn_pick_alert,
-            self.btn_sound
-        ]
+controls = tk.Frame(center, bg="#121212")
+controls.pack(pady=10)
+for text in ["Start Game(G)", "Start(S)", "Pause(P)", "Reset(S)", "Extention(Space)"]:
+    tk.Button(controls, text=text).pack(side="left", padx=5)
 
-        # ---- HOTKEYS ----
-        self.root.bind_all("<s>", lambda e: self.start())
-        self.root.bind_all("<S>", lambda e: self.start())
-        self.root.bind_all("<p>", lambda e: self.pause())
-        self.root.bind_all("<P>", lambda e: self.pause())
-        self.root.bind_all("<x>", lambda e: self.reset())
-        self.root.bind_all("<X>", lambda e: self.reset())
-        self.root.bind_all("<space>", lambda e: self.add_extension())
-        self.root.bind_all("<g>", lambda e: self.start_game())
-        self.root.bind_all("<G>", lambda e: self.start_game())
-        self.root.bind_all("<Escape>", lambda e: self.root.destroy())
+# ---------- RIGHT TEAM ----------
+right_team = ttk.Frame(top, style="Card.TFrame", padding=20)
+right_team.pack(side="left", fill="y", padx=10)
 
-        self.start_game_value.focus_set()
-        self.root.mainloop()
+ttk.Label(right_team, text="Team", style="Title.TLabel").pack(anchor="w")
+ttk.Entry(right_team, width=25).pack(pady=5)
 
-    # ---- VALIDATION ----
-    def validate_number(self, value):
-        return value.isdigit() or value == ""
+ttk.Label(right_team, text="Player's Name", style="Label.TLabel").pack(anchor="w", pady=(10, 5))
 
-    # ---- PRE-RUN CHECK FOR EMPTY FIELDS ----
-    def check_required_fields(self):
-        required = [
-            (self.start_game_value, "Start Game At"),
-            (self.shot_duration, "Shot Duration"),
-            (self.extension, "Extension"),
-            (self.alert_time, "Alert At")
-        ]
-        for entry, name in required:
-            if entry.get().strip() == "":
-                messagebox.showwarning("Warning", f"'{name}' cannot be empty!")
-                entry.focus_set()
-                return False
-        return True
+for _ in range(5):
+    row = tk.Frame(right_team, bg="#121212")
+    row.pack(fill="x", pady=4)
+    tk.Button(row, text="Select", width=8).pack(side="left")
+    ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
 
-    # ---- HELPERS ----
-    def create_entry(self, parent, label, default, row, numeric=False):
-        tk.Label(parent, text=label, fg="white", bg="#111", font=FONT_LABEL)\
-            .grid(row=row, column=0, sticky="e", padx=10, pady=6)
-        entry = tk.Entry(
-            parent,
-            font=FONT_LABEL,
-            width=8,
-            justify="center",
-            validate="key" if numeric else "none",
-            validatecommand=self.vcmd_number if numeric else None
-        )
-        entry.insert(0, default)
-        entry.grid(row=row, column=1)
-        entry.bind("<FocusIn>", lambda e: self.mode_label.config(text="EDIT MODE", fg="yellow"))
-        entry.bind("<Return>", self.exit_entry_mode)
-        entry.bind("<Escape>", self.exit_entry_mode)
-        return entry
+# ================== BOTTOM SECTION ==================
+bottom = tk.Frame(main, bg="black")
+bottom.pack(fill="x", pady=20)
 
-    def create_button(self, parent, text, cmd, col):
-        tk.Button(parent, text=text, font=FONT_BTN, width=16, command=cmd)\
-            .grid(row=0, column=col, padx=8)
+# ---------- PLAYER 1 ----------
+p1 = ttk.Frame(bottom, style="Card.TFrame", padding=20)
+p1.pack(side="left", fill="x", expand=True, padx=10)
 
-    # ---- COLORS ----
-    def choose_normal_color(self):
-        c = colorchooser.askcolor()[1]
-        if c:
-            self.normal_color.delete(0, tk.END)
-            self.normal_color.insert(0, c)
+ttk.Label(p1, text="Player 1", style="Title.TLabel").pack(anchor="w")
 
-    def choose_alert_color(self):
-        c = colorchooser.askcolor()[1]
-        if c:
-            self.alert_color.delete(0, tk.END)
-            self.alert_color.insert(0, c)
+nick1 = ttk.Entry(p1)
+nick1.pack(fill="x", pady=5)
 
-    # ---- SOUND ----
-    def select_alert_file(self):
-        self.alert_file_path = filedialog.askopenfilename(
-            filetypes=(("WAV files", "*.wav"),)
-        )
+# SCORE
+score_row = tk.Frame(p1, bg="#121212")
+score_row.pack(pady=10)
 
-    def play_alert_sound(self):
-        if not self.buzzer_enabled.get():
-            return
-        if self.alert_file_path:
-            winsound.PlaySound(self.alert_file_path, winsound.SND_ASYNC)
-        else:
-            winsound.Beep(1200, 150)
+tk.Button(score_row, text="-", width=4).pack(side="left")
+ttk.Label(score_row, text="0", font=("Arial", 32, "bold"),
+          background="#121212", foreground="white").pack(side="left", padx=10)
+tk.Button(score_row, text="+", width=4).pack(side="left")
 
-    # ---- TIMER ----
-    def update_timer(self):
-        if self.running and self.time_left > 0:
-            self.time_left -= 1
-            alert = int(self.alert_time.get())
-            if self.time_left <= alert and self.last_alert_played != self.time_left:
-                self.play_alert_sound()
-                self.last_alert_played = self.time_left
-            self.update_display()
-            if self.time_left > 0:
-                self.timer_id = self.root.after(1000, self.update_timer)
-            else:
-                self.running = False
-                self.unlock_editing()
-                self.play_alert_sound()
+# FOUL & EXT
+fe_row = tk.Frame(p1, bg="#121212")
+fe_row.pack(pady=10)
 
-    def update_display(self):
-        val = str(self.time_left)
-        alert = int(self.alert_time.get())
-        color = self.alert_color.get() if self.time_left <= alert else self.normal_color.get()
-        self.controller_display.config(text=val, fg=color)
-        self.display_label.config(text=val, fg=color)
+# FOUL
+tk.Label(fe_row, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
+ttk.Label(fe_row, text="0", width=3, anchor="center").grid(row=0, column=1)
+tk.Button(fe_row, text="+", width=3).grid(row=0, column=2)
+tk.Button(fe_row, text="Reset", width=6).grid(row=0, column=3, padx=5)
 
-    # ---- ACTIONS ----
-    def start_game(self):
-        if not self.check_required_fields():
-            return
-        self.running = False
-        if self.timer_id:
-            self.root.after_cancel(self.timer_id)
-            self.timer_id = None
-        self.time_left = int(self.start_game_value.get())
-        self.last_alert_played = None
-        self.update_display()
-        self.unlock_editing()
+# EXT
+tk.Label(fe_row, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
+ttk.Label(fe_row, text="1", width=3, anchor="center").grid(row=1, column=1)
+tk.Button(fe_row, text="-", width=3).grid(row=1, column=2)
 
-    def start(self):
-        if not self.check_required_fields():
-            return
-        if not self.running:
-            self.running = True
-            self.lock_editing()
-            self.mode_label.config(text="HOTKEY MODE", fg="lime")
-            self.last_alert_played = None
-            self.update_display()
-            self.timer_id = self.root.after(1000, self.update_timer)
+# ---------- CENTER CONTROL ----------
+mid = ttk.Frame(bottom, style="Card.TFrame", padding=20)
+mid.pack(side="left", padx=10)
 
-    def pause(self):
-        self.running = False
-        if self.timer_id:
-            self.root.after_cancel(self.timer_id)
-            self.timer_id = None
-        self.unlock_editing()
+ttk.Entry(mid, justify="center").pack(fill="x", pady=5)
+ttk.Label(mid, text="Label", style="Label.TLabel").pack()
+tk.Button(mid, text="<- Switch ->").pack(pady=5)
+tk.Button(mid, text="Reset Score").pack(pady=5)
+tk.Checkbutton(mid, text="Auto Update", fg="white",
+               bg="#121212", selectcolor="#121212").pack(pady=5)
+tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
+          bg="#BDBDBD").pack(pady=10, fill="x")
 
-    def reset(self):
-        if not self.check_required_fields():
-            return
-        self.running = False
-        if self.timer_id:
-            self.root.after_cancel(self.timer_id)
-            self.timer_id = None
-        self.time_left = int(self.shot_duration.get())
-        self.last_alert_played = None
-        self.update_display()
-        self.unlock_editing()
+# ---------- PLAYER 2 ----------
+# ---------- PLAYER 2 ----------
+p2 = ttk.Frame(bottom, style="Card.TFrame", padding=20)
+p2.pack(side="left", fill="x", expand=True, padx=10)
 
-    def add_extension(self):
-        if not self.check_required_fields():
-            return
-        self.time_left += int(self.extension.get())
-        self.update_display()
+ttk.Label(p2, text="Player 2", style="Title.TLabel").pack(anchor="w")
 
-    # ---- EDIT LOCK ----
-    def lock_editing(self):
-        for w in self.edit_widgets:
-            w.config(state="disabled")
-        self.mode_label.config(text="LOCKED (RUNNING)", fg="red")
+nick2 = ttk.Entry(p2)
+nick2.pack(fill="x", pady=5)
 
-    def unlock_editing(self):
-        for w in self.edit_widgets:
-            w.config(state="normal")
-        self.mode_label.config(text="EDIT MODE", fg="yellow")
+# SCORE
+score_row2 = tk.Frame(p2, bg="#121212")
+score_row2.pack(pady=10)
 
-    def exit_entry_mode(self, event=None):
-        self.root.focus_set()
-        self.mode_label.config(text="HOTKEY MODE", fg="lime")
+tk.Button(score_row2, text="-", width=4).pack(side="left")
+ttk.Label(score_row2, text="0", font=("Arial", 32, "bold"),
+          background="#121212", foreground="white").pack(side="left", padx=10)
+tk.Button(score_row2, text="+", width=4).pack(side="left")
 
-# ---- RUN APP ----
-ShotClock()
+# FOUL & EXT
+fe_row2 = tk.Frame(p2, bg="#121212")
+fe_row2.pack(pady=10)
+
+# FOUL
+tk.Label(fe_row2, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
+ttk.Label(fe_row2, text="0", width=3, anchor="center").grid(row=0, column=1)
+tk.Button(fe_row2, text="+", width=3).grid(row=0, column=2)
+tk.Button(fe_row2, text="Reset", width=6).grid(row=0, column=3, padx=5)
+
+# EXT
+tk.Label(fe_row2, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
+ttk.Label(fe_row2, text="1", width=3, anchor="center").grid(row=1, column=1)
+tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
+
+
+# ================== RUN ==================
+root.mainloop()
