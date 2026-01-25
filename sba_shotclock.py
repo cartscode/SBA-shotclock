@@ -4,8 +4,19 @@ from tkinter import ttk
 # ================== ROOT ==================
 root = tk.Tk()
 root.title("Scoreboard Software")
-root.geometry("1400x800")
+
+# SMALL DEFAULT SIZE (matches your screenshot)
+root.geometry("1000x600")
+
+# Prevent going too large or too small
+root.minsize(950, 580)
+root.maxsize(1100, 700)   # optional: prevents fullscreen feel
+
 root.configure(bg="#000000")
+
+# Optional: disable maximize button (Windows)
+root.resizable(True, True)
+root.attributes("-toolwindow", True)  # makes it feel like a control panel
 
 # ================== STYLES ==================
 style = ttk.Style()
@@ -18,14 +29,14 @@ style.configure("Entry.TEntry", font=("Arial", 11))
 
 # ================== MAIN CONTAINER ==================
 main = tk.Frame(root, bg="black")
-main.pack(fill="both", expand=True, padx=20, pady=20)
+main.pack(fill="both", expand=True, padx=8, pady=8)
 
 # ================== TOP SECTION ==================
 top = tk.Frame(main, bg="black")
 top.pack(fill="x")
 
 # ---------- LEFT TEAM ----------
-left_team = ttk.Frame(top, style="Card.TFrame", padding=20)
+left_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 left_team.pack(side="left", fill="y", padx=10)
 
 ttk.Label(left_team, text="Team", style="Title.TLabel").pack(anchor="w")
@@ -40,7 +51,7 @@ for _ in range(5):
     ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
 
 # ---------- CENTER TIMER ----------
-center = ttk.Frame(top, style="Card.TFrame", padding=20)
+center = ttk.Frame(top, style="Card.TFrame", padding=10)
 center.pack(side="left", expand=True, fill="both", padx=10)
 
 ttk.Label(center, text="40", foreground="#FFFFFF", background="#121212",
@@ -84,7 +95,7 @@ for text in ["Start Game(G)", "Start(S)", "Pause(P)", "Reset(S)", "Extention(Spa
     tk.Button(controls, text=text).pack(side="left", padx=5)
 
 # ---------- RIGHT TEAM ----------
-right_team = ttk.Frame(top, style="Card.TFrame", padding=20)
+right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 right_team.pack(side="left", fill="y", padx=10)
 
 ttk.Label(right_team, text="Team", style="Title.TLabel").pack(anchor="w")
@@ -103,7 +114,7 @@ bottom = tk.Frame(main, bg="black")
 bottom.pack(fill="x", pady=20)
 
 # ---------- PLAYER 1 ----------
-p1 = ttk.Frame(bottom, style="Card.TFrame", padding=20)
+p1 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 p1.pack(side="left", fill="x", expand=True, padx=10)
 
 ttk.Label(p1, text="Player 1", style="Title.TLabel").pack(anchor="w")
@@ -136,7 +147,7 @@ ttk.Label(fe_row, text="1", width=3, anchor="center").grid(row=1, column=1)
 tk.Button(fe_row, text="-", width=3).grid(row=1, column=2)
 
 # ---------- CENTER CONTROL ----------
-mid = ttk.Frame(bottom, style="Card.TFrame", padding=20)
+mid = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 mid.pack(side="left", padx=10)
 
 ttk.Entry(mid, justify="center").pack(fill="x", pady=5)
@@ -150,7 +161,7 @@ tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
 
 # ---------- PLAYER 2 ----------
 # ---------- PLAYER 2 ----------
-p2 = ttk.Frame(bottom, style="Card.TFrame", padding=20)
+p2 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 p2.pack(side="left", fill="x", expand=True, padx=10)
 
 ttk.Label(p2, text="Player 2", style="Title.TLabel").pack(anchor="w")
