@@ -1,22 +1,25 @@
 import tkinter as tk
 from tkinter import ttk
 
-# ================== ROOT ==================
 root = tk.Tk()
 root.title("Scoreboard Software")
 
-# SMALL DEFAULT SIZE (matches your screenshot)
 root.geometry("1000x600")
+root.minsize(950, 780)
+# root.maxsize(1100, 700)
 
-# Prevent going too large or too small
-root.minsize(950, 580)
-root.maxsize(1100, 700)   # optional: prevents fullscreen feel
+root.configure(bg="#000000")
+root.resizable(True, True)
+
+# ❌ REMOVE this line:
+# root.attributes("-toolwindow", True)
+
 
 root.configure(bg="#000000")
 
 # Optional: disable maximize button (Windows)
 root.resizable(True, True)
-root.attributes("-toolwindow", True)  # makes it feel like a control panel
+# root.attributes("-toolwindow", True)  # makes it feel like a control panel
 
 # ================== STYLES ==================
 style = ttk.Style()
@@ -38,7 +41,7 @@ top.pack(fill="x")
 # ---------- LEFT TEAM ----------
 left_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 left_team.pack(side="left", fill="y", padx=10)
-
+    
 ttk.Label(left_team, text="Team", style="Title.TLabel").pack(anchor="w")
 ttk.Entry(left_team, width=25).pack(pady=5)
 
@@ -119,8 +122,13 @@ p1.pack(side="left", fill="x", expand=True, padx=10)
 
 ttk.Label(p1, text="Player 1", style="Title.TLabel").pack(anchor="w")
 
-nick1 = ttk.Entry(p1)
-nick1.pack(fill="x", pady=5)
+name_row1 = tk.Frame(p1, bg="#121212")
+name_row1.pack(anchor="w", pady=5)
+
+ttk.Label(name_row1, text="Name:", style="Label.TLabel", width=6).pack(side="left", padx=(0, 5))
+nick1 = ttk.Entry(name_row1, width=18)
+nick1.pack(side="left")
+
 
 # SCORE
 score_row = tk.Frame(p1, bg="#121212")
@@ -150,7 +158,7 @@ tk.Button(fe_row, text="-", width=3).grid(row=1, column=2)
 mid = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 mid.pack(side="left", padx=10)
 
-ttk.Entry(mid, justify="center").pack(fill="x", pady=5)
+ttk.Entry(mid, justify="center", width=30).pack(fill="x", pady=5)
 ttk.Label(mid, text="Label", style="Label.TLabel").pack()
 tk.Button(mid, text="<- Switch ->").pack(pady=5)
 tk.Button(mid, text="Reset Score").pack(pady=5)
@@ -160,14 +168,18 @@ tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
           bg="#BDBDBD").pack(pady=10, fill="x")
 
 # ---------- PLAYER 2 ----------
-# ---------- PLAYER 2 ----------
 p2 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 p2.pack(side="left", fill="x", expand=True, padx=10)
 
 ttk.Label(p2, text="Player 2", style="Title.TLabel").pack(anchor="w")
+name_row2 = tk.Frame(p2, bg="#121212")
+name_row2.pack(anchor="w", pady=5)
 
-nick2 = ttk.Entry(p2)
-nick2.pack(fill="x", pady=5)
+ttk.Label(name_row2, text="Name:", style="Label.TLabel", width=6).pack(side="left", padx=(0, 5))
+nick2 = ttk.Entry(name_row2, width=18)
+nick2.pack(side="left")
+
+
 
 # SCORE
 score_row2 = tk.Frame(p2, bg="#121212")
