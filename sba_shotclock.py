@@ -54,12 +54,21 @@ for _ in range(5):
     tk.Button(row, text="Select", width=8).pack(side="left")
     ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
 
+#---------------Need to be fix ---------------
 # ---------- CENTER TIMER ----------
 center = ttk.Frame(top, style="Card.TFrame", padding=10)
 center.pack(side="left", expand=True, fill="both", padx=10)
 
-ttk.Label(center, text="40", foreground="#FFFFFF", background="#121212",
-          font=("Arial", 48, "bold")).pack()
+# ----------------- TIMER LABEL -----------------
+timer_value = tk.IntVar(value=40)   # shot clock starts at 40
+alert_enabled = tk.BooleanVar(value=False)
+alert_time = tk.IntVar(value=5)     # alert triggers at 5 seconds
+extension_count = tk.IntVar(value=1)
+running = False                      # timer running flag
+
+timer_label = ttk.Label(center, textvariable=timer_value, foreground="#FFFFFF", background="#121212",
+                        font=("Arial", 48, "bold"))
+timer_label.pack()
 
 ttk.Label(center, text="EDIT MODE", foreground="#FFD700",
           background="#121212", font=("Arial", 14, "bold")).pack(pady=5)
@@ -90,14 +99,66 @@ tk.Button(color_row2, text="Select").pack(side="left")
 alert_row = tk.Frame(center, bg="#121212")
 alert_row.pack(pady=10)
 tk.Checkbutton(alert_row, text="Enable Alert", fg="white",
-               bg="#121212", selectcolor="#121212").pack(side="left")
+               bg="#121212", selectcolor="#121212", variable=alert_enabled).pack(side="left")
 tk.Button(alert_row, text="Select").pack(side="left", padx=5)
 
+# ----------------- TIMER FUNCTIONS -----------------
+def update_timer():
+    global running
+    if running:
+        current = timer_value.get()
+        if current > 0:
+            timer_value.set(current - 1)
+            # Alert color
+            if alert_enabled.get() and current - 1 <= alert_time.get():
+                timer_label.config(foreground="red")
+            else:
+                timer_label.config(foreground="white")
+            root.after(1000, update_timer)
+        else:
+            running = False
+            # Optional: add a beep or message
+            print("Shot clock reached 0!")
+
+def start_timer():
+    global running
+    if not running:
+        running = True
+        update_timer()
+
+def pause_timer():
+    global running
+    running = False
+
+def reset_timer():
+    global running
+    running = False
+    timer_value.set(40)
+    timer_label.config(foreground="white")
+
+def add_extension():
+    if extension_count.get() > 0:
+        timer_value.set(timer_value.get() + 10)  # add 10 seconds
+        extension_count.set(extension_count.get() - 1)
+
+# ----------------- CONTROLS -----------------
 controls = tk.Frame(center, bg="#121212")
 controls.pack(pady=10)
-for text in ["Start Game(G)", "Start(S)", "Pause(P)", "Reset(S)", "Extention(Space)"]:
-    tk.Button(controls, text=text).pack(side="left", padx=5)
 
+buttons_text = ["Start Game(G)", "Start(S)", "Pause(P)", "Reset(X)", "Extention(Space)"]
+buttons_command = [start_timer, start_timer, pause_timer, reset_timer, add_extension]
+
+for text, cmd in zip(buttons_text, buttons_command):
+    tk.Button(controls, text=text, command=cmd).pack(side="left", padx=5)
+
+# ----------------- KEYBINDINGS -----------------
+root.bind("g", lambda e: start_timer())
+root.bind("s", lambda e: start_timer())
+root.bind("p", lambda e: pause_timer())
+root.bind("x", lambda e: reset_timer())
+root.bind("<space>", lambda e: add_extension())
+
+# ----------------- NEED to be fix -----------------
 # ---------- RIGHT TEAM ----------
 right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 right_team.pack(side="left", fill="y", padx=10)
@@ -252,4 +313,4 @@ tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
 
 
 # ================== RUN ==================
-root.mainloop()
+root.mainloop() 
