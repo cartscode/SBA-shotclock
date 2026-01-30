@@ -42,10 +42,11 @@ top.pack(fill="x")
 left_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 left_team.pack(side="left", fill="y", padx=10)
     
-ttk.Label(left_team, text="Team", style="Title.TLabel").pack(anchor="w")
+
+ttk.Label(left_team, text="Team", style="Title.TLabel").pack(anchor="center")
 ttk.Entry(left_team, width=25).pack(pady=5)
 
-ttk.Label(left_team, text="Player's Name", style="Label.TLabel").pack(anchor="w", pady=(10, 5))
+ttk.Label(left_team, text="Player's Name", style="Label.TLabel").pack(anchor="center", pady=(10, 5))
 
 for _ in range(5):
     row = tk.Frame(left_team, bg="#121212")
@@ -101,10 +102,10 @@ for text in ["Start Game(G)", "Start(S)", "Pause(P)", "Reset(S)", "Extention(Spa
 right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 right_team.pack(side="left", fill="y", padx=10)
 
-ttk.Label(right_team, text="Team", style="Title.TLabel").pack(anchor="w")
+ttk.Label(right_team, text="Team", style="Title.TLabel").pack(anchor="center")
 ttk.Entry(right_team, width=25).pack(pady=5)
 
-ttk.Label(right_team, text="Player's Name", style="Label.TLabel").pack(anchor="w", pady=(10, 5))
+ttk.Label(right_team, text="Player's Name", style="Label.TLabel").pack(anchor="center", pady=(10, 5))
 
 for _ in range(5):
     row = tk.Frame(right_team, bg="#121212")
@@ -120,14 +121,24 @@ bottom.pack(fill="x", pady=20)
 p1 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 p1.pack(side="left", fill="x", expand=True, padx=10)
 
-ttk.Label(p1, text="Player 1", style="Title.TLabel").pack(anchor="w")
+ttk.Label(p1, text="Player 1", style="Title.TLabel").pack(anchor="center")
 
 name_row1 = tk.Frame(p1, bg="#121212")
-name_row1.pack(anchor="w", pady=5)
+name_row1.pack(fill="x", pady=5)
 
-ttk.Label(name_row1, text="Name:", style="Label.TLabel", width=6).pack(side="left", padx=(0, 5))
-nick1 = ttk.Entry(name_row1, width=18)
-nick1.pack(side="left")
+# make grid responsive
+name_row1.columnconfigure(0, weight=1)
+name_row1.columnconfigure(1, weight=3)
+
+ttk.Label(
+    name_row1,
+    text="Name:",
+    style="Label.TLabel"
+).grid(row=0, column=0, sticky="e", padx=(0, 8))
+
+nick1 = ttk.Entry(name_row1)
+nick1.grid(row=0, column=1, sticky="ew")
+
 
 
 # SCORE
@@ -171,13 +182,22 @@ tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
 p2 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 p2.pack(side="left", fill="x", expand=True, padx=10)
 
-ttk.Label(p2, text="Player 2", style="Title.TLabel").pack(anchor="w")
+ttk.Label(p2, text="Player 2", style="Title.TLabel").pack(anchor="center")
 name_row2 = tk.Frame(p2, bg="#121212")
-name_row2.pack(anchor="w", pady=5)
+name_row2.pack(fill="x", pady=5)
 
-ttk.Label(name_row2, text="Name:", style="Label.TLabel", width=6).pack(side="left", padx=(0, 5))
-nick2 = ttk.Entry(name_row2, width=18)
-nick2.pack(side="left")
+name_row2.columnconfigure(0, weight=1)
+name_row2.columnconfigure(1, weight=3)
+
+ttk.Label(
+    name_row2,
+    text="Name:",
+    style="Label.TLabel"
+).grid(row=0, column=0, sticky="e", padx=(0, 8))
+
+nick2 = ttk.Entry(name_row2)
+nick2.grid(row=0, column=1, sticky="ew")
+
 
 
 
