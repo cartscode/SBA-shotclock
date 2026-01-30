@@ -1,6 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
-
+from tkinter import colorchooser, filedialog, simpledialog, messagebox
+import winsound
+import sys
+import os
+import time
+import secrets
 root = tk.Tk()
 root.title("Scoreboard Software")
 
