@@ -121,14 +121,18 @@ bottom.pack(fill="x", pady=20)
 p1 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 p1.pack(side="left", fill="x", expand=True, padx=10)
 
-ttk.Label(p1, text="Player 1", style="Title.TLabel").pack(anchor="center")
+ttk.Label(
+    p1,
+    text="Player 1",
+    style="Title.TLabel"
+).pack(anchor="center")
 
 name_row1 = tk.Frame(p1, bg="#121212")
-name_row1.pack(fill="x", pady=5)
+name_row1.pack(pady=5)
 
-# make grid responsive
-name_row1.columnconfigure(0, weight=1)
-name_row1.columnconfigure(1, weight=3)
+# STOP auto expansion
+name_row1.columnconfigure(0, weight=0)
+name_row1.columnconfigure(1, weight=0)
 
 ttk.Label(
     name_row1,
@@ -136,8 +140,13 @@ ttk.Label(
     style="Label.TLabel"
 ).grid(row=0, column=0, sticky="e", padx=(0, 8))
 
-nick1 = ttk.Entry(name_row1)
-nick1.grid(row=0, column=1, sticky="ew")
+# Custom width Entry
+nick1 = ttk.Entry(
+    name_row1,
+    width=24   # 👈 adjust freely
+)
+nick1.grid(row=0, column=1, sticky="w")
+
 
 
 
@@ -179,24 +188,40 @@ tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
           bg="#BDBDBD").pack(pady=10, fill="x")
 
 # ---------- PLAYER 2 ----------
+# Player 2 card
 p2 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 p2.pack(side="left", fill="x", expand=True, padx=10)
 
-ttk.Label(p2, text="Player 2", style="Title.TLabel").pack(anchor="center")
+# Title
+ttk.Label(
+    p2,
+    text="Player 2",
+    style="Title.TLabel"
+).pack(anchor="center")
+
+# Name row
 name_row2 = tk.Frame(p2, bg="#121212")
-name_row2.pack(fill="x", pady=5)
+name_row2.pack(pady=5)
 
-name_row2.columnconfigure(0, weight=1)
-name_row2.columnconfigure(1, weight=3)
+# DO NOT allow column expansion
+name_row2.columnconfigure(0, weight=0)
+name_row2.columnconfigure(1, weight=0)
 
+# Label
 ttk.Label(
     name_row2,
     text="Name:",
     style="Label.TLabel"
 ).grid(row=0, column=0, sticky="e", padx=(0, 8))
 
-nick2 = ttk.Entry(name_row2)
-nick2.grid(row=0, column=1, sticky="ew")
+# Entry (custom width)
+nick2 = ttk.Entry(
+    name_row2,
+    width=24 # 👈 adjust this number to control width
+)
+
+# IMPORTANT: no horizontal stretching
+nick2.grid(row=0, column=1, sticky="w")
 
 
 
