@@ -59,17 +59,25 @@ for _ in range(5):
     tk.Button(row, text="Select", width=8).pack(side="left")
     ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
 
-#---------------Need to be fix ---------------
+#---------------Need to be fix add function ---------------
+
 # ---------- CENTER TIMER ----------
 center = ttk.Frame(top, style="Card.TFrame", padding=10)
 center.pack(side="left", expand=True, fill="both", padx=10)
 
 # ----------------- TIMER LABEL -----------------
-timer_value = tk.IntVar(value=40)   # shot clock starts at 40
-alert_enabled = tk.BooleanVar(value=False)
-alert_time = tk.IntVar(value=5)     # alert triggers at 5 seconds
-extension_count = tk.IntVar(value=1)
-running = False                      # timer running flag
+timer_value = tk.IntVar(value=40)
+
+start_game_at = tk.IntVar(value=40)
+shot_duration = tk.IntVar(value=30)
+extension_seconds = tk.IntVar(value=10)
+alert_time = tk.IntVar(value=5)
+
+alert_enabled = tk.BooleanVar(value=True)
+
+running = False
+timer_job = None
+
 
 timer_label = ttk.Label(center, textvariable=timer_value, foreground="#FFFFFF", background="#121212",
                         font=("Arial", 48, "bold"))
@@ -109,59 +117,88 @@ tk.Button(alert_row, text="Select").pack(side="left", padx=5)
 
 # ----------------- TIMER FUNCTIONS -----------------
 def update_timer():
-    global running
-    if running:
-        current = timer_value.get()
-        if current > 0:
-            timer_value.set(current - 1)
-            # Alert color
-            if alert_enabled.get() and current - 1 <= alert_time.get():
-                timer_label.config(foreground="red")
-            else:
-                timer_label.config(foreground="white")
-            root.after(1000, update_timer)
+    global running, timer_job
+
+    if not running:
+        return
+
+    current = timer_value.get()
+
+    if current > 0:
+        timer_value.set(current - 1)
+
+        if alert_enabled.get() and current - 1 <= alert_time.get():
+            timer_label.config(foreground="red")
+            winsound.Beep(1200, 60)
         else:
-            running = False
-            # Optional: add a beep or message
-            print("Shot clock reached 0!")
+            timer_label.config(foreground="white")
+
+        timer_job = root.after(1000, update_timer)
+    else:
+        running = False
+        timer_label.config(foreground="red")
+        winsound.Beep(1500, 300)
+
+
+def start_game():
+    stop_timer()
+    timer_value.set(start_game_at.get())
+    timer_label.config(foreground="white")
+
 
 def start_timer():
     global running
-    if not running:
-        running = True
-        update_timer()
+    if running:
+        return
+    running = True
+    update_timer()
+
 
 def pause_timer():
-    global running
+    stop_timer()
+
+
+def stop_timer():
+    global running, timer_job
     running = False
+    if timer_job:
+        root.after_cancel(timer_job)
+        timer_job = None
+
 
 def reset_timer():
-    global running
-    running = False
-    timer_value.set(40)
+    stop_timer()
+    timer_value.set(shot_duration.get())
     timer_label.config(foreground="white")
 
+
 def add_extension():
-    if extension_count.get() > 0:
-        timer_value.set(timer_value.get() + 10)  # add 10 seconds
-        extension_count.set(extension_count.get() - 1)
+    if timer_value.get() > 0:
+        timer_value.set(timer_value.get() + extension_seconds.get())
 
 # ----------------- CONTROLS -----------------
 controls = tk.Frame(center, bg="#121212")
 controls.pack(pady=10)
 
 buttons_text = ["Start Game(G)", "Start(S)", "Pause(P)", "Reset(X)", "Extention(Space)"]
-buttons_command = [start_timer, start_timer, pause_timer, reset_timer, add_extension]
+buttons_command = [
+    start_game,
+    start_timer,
+    pause_timer,
+    reset_timer,
+    add_extension
+]
 
 for text, cmd in zip(buttons_text, buttons_command):
     tk.Button(controls, text=text, command=cmd).pack(side="left", padx=5)
 
 # ----------------- KEYBINDINGS -----------------
-root.bind("g", lambda e: start_timer())
+root.bind("g", lambda e: start_game())
 root.bind("s", lambda e: start_timer())
 root.bind("p", lambda e: pause_timer())
 root.bind("x", lambda e: reset_timer())
 root.bind("<space>", lambda e: add_extension())
+
 
 # ----------------- NEED to be fix -----------------
 # ---------- RIGHT TEAM ----------
