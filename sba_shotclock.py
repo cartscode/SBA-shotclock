@@ -78,7 +78,6 @@ alert_enabled = tk.BooleanVar(value=True)
 running = False
 timer_job = None
 
-# ✅ MOVED HERE (FIXED ORDER)
 normal_color_value = tk.StringVar(value="white")
 alert_color_value = tk.StringVar(value="red")
 alert_sound_path = None
@@ -96,16 +95,21 @@ timer_label.pack()
 ttk.Label(center, text="EDIT MODE", foreground="#FFD700",
           background="#121212", font=("Arial", 14, "bold")).pack(pady=5)
 
-def config_row(parent, label):
+
+# ----------------- FIXED CONFIG ROW -----------------
+def config_row(parent, label, variable):
     row = tk.Frame(parent, bg="#121212")
     row.pack(pady=4)
-    ttk.Label(row, text=label, style="Label.TLabel", width=15).pack(side="left")
-    ttk.Entry(row, width=10).pack(side="left")
 
-config_row(center, "Start game at:")
-config_row(center, "Shot Duration:")
-config_row(center, "Extention:")
-config_row(center, "Alert At:")
+    ttk.Label(row, text=label, style="Label.TLabel", width=15).pack(side="left")
+    ttk.Entry(row, width=10, textvariable=variable).pack(side="left")
+
+
+config_row(center, "Start game at:", start_game_at)
+config_row(center, "Shot Duration:", shot_duration)
+config_row(center, "Extention:", extension_seconds)
+config_row(center, "Alert At:", alert_time)
+
 
 # ----------------- COLOR ROW -----------------
 color_row = tk.Frame(center, bg="#121212")
@@ -118,6 +122,7 @@ normal_color_entry.pack(side="left", padx=5)
 
 tk.Button(color_row, text="Select", command=lambda: choose_normal_color()).pack(side="left")
 
+
 # ----------------- ALERT COLOR ROW -----------------
 color_row2 = tk.Frame(center, bg="#121212")
 color_row2.pack(pady=5)
@@ -129,6 +134,7 @@ alert_color_entry.pack(side="left", padx=5)
 
 tk.Button(color_row2, text="Select", command=lambda: choose_alert_color()).pack(side="left")
 
+
 # ----------------- ALERT ROW -----------------
 alert_row = tk.Frame(center, bg="#121212")
 alert_row.pack(pady=10)
@@ -137,12 +143,12 @@ tk.Checkbutton(alert_row, text="Enable Alert", fg="white",
                bg="#121212", selectcolor="#121212",
                variable=alert_enabled).pack(side="left")
 
-# ✅ FIXED BUTTON
-tk.Button(alert_row, text="Select", command=lambda: select_alert_file()).pack(side="left", padx=5)
+tk.Button(alert_row, text="Select",
+          command=lambda: select_alert_file()).pack(side="left", padx=5)
 
 
 # =====================================================
-# 🔥 ADDED 3 FUNCTIONS
+# COLOR + SOUND FUNCTIONS
 # =====================================================
 
 def choose_normal_color():
@@ -167,6 +173,20 @@ def select_alert_file():
         alert_sound_path = path
 
 
+# ----------------- ADDED SOUND FUNCTION -----------------
+def play_alert_sound(final=False):
+    if not alert_enabled.get():
+        return
+
+    if alert_sound_path:
+        winsound.PlaySound(alert_sound_path, winsound.SND_ASYNC)
+    else:
+        if final:
+            winsound.Beep(1500, 300)
+        else:
+            winsound.Beep(1200, 60)
+
+
 # ----------------- TIMER FUNCTIONS -----------------
 def update_timer():
     global running, timer_job
@@ -177,15 +197,12 @@ def update_timer():
     current = timer_value.get()
 
     if current > 0:
-        timer_value.set(current - 1)
+        new_time = current - 1
+        timer_value.set(new_time)
 
-        if alert_enabled.get() and current - 1 <= alert_time.get():
+        if alert_enabled.get() and new_time <= alert_time.get():
             timer_label.config(foreground=alert_color_value.get())
-
-            if alert_sound_path:
-                winsound.PlaySound(alert_sound_path, winsound.SND_ASYNC)
-            else:
-                winsound.Beep(1200, 60)
+            play_alert_sound()
         else:
             timer_label.config(foreground=normal_color_value.get())
 
@@ -194,11 +211,7 @@ def update_timer():
     else:
         running = False
         timer_label.config(foreground=alert_color_value.get())
-
-        if alert_sound_path:
-            winsound.PlaySound(alert_sound_path, winsound.SND_ASYNC)
-        else:
-            winsound.Beep(1500, 300)
+        play_alert_sound(final=True)
 
 
 def start_game():
@@ -254,13 +267,14 @@ buttons_command = [
 for text, cmd in zip(buttons_text, buttons_command):
     tk.Button(controls, text=text, command=cmd).pack(side="left", padx=5)
 
+
 # ----------------- KEYBINDINGS -----------------
 root.bind("g", lambda e: start_game())
 root.bind("s", lambda e: start_timer())
 root.bind("p", lambda e: pause_timer())
 root.bind("x", lambda e: reset_timer())
 root.bind("<space>", lambda e: add_extension())
-#------fix(adding function)----
+
 # ---------- RIGHT TEAM ----------
 right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 right_team.pack(side="left", fill="y", padx=10)
