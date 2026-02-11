@@ -60,12 +60,11 @@ for _ in range(5):
     ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
 
 #---------------Need to be fix add function ---------------
-
 # ---------- CENTER TIMER ----------
 center = ttk.Frame(top, style="Card.TFrame", padding=10)
 center.pack(side="left", expand=True, fill="both", padx=10)
 
-# ----------------- TIMER LABEL -----------------
+# ----------------- TIMER VARIABLES -----------------
 timer_value = tk.IntVar(value=40)
 
 start_game_at = tk.IntVar(value=40)
@@ -82,7 +81,10 @@ normal_color_value = tk.StringVar(value="white")
 alert_color_value = tk.StringVar(value="red")
 alert_sound_path = None
 
+# 🔥 LIST TO STORE EDITABLE WIDGETS
+edit_widgets = []
 
+# ----------------- TIMER LABEL -----------------
 timer_label = ttk.Label(
     center,
     textvariable=timer_value,
@@ -95,6 +97,10 @@ timer_label.pack()
 ttk.Label(center, text="EDIT MODE", foreground="#FFD700",
           background="#121212", font=("Arial", 14, "bold")).pack(pady=5)
 
+# ----------------- VALIDATION FUNCTION -----------------
+def only_numbers(P):
+    """Allow only digits in Entry"""
+    return P.isdigit() or P == ""  # empty allowed for deletion
 
 # ----------------- FIXED CONFIG ROW -----------------
 def config_row(parent, label, variable):
@@ -102,14 +108,19 @@ def config_row(parent, label, variable):
     row.pack(pady=4)
 
     ttk.Label(row, text=label, style="Label.TLabel", width=15).pack(side="left")
-    ttk.Entry(row, width=10, textvariable=variable).pack(side="left")
 
+    vcmd = (parent.register(only_numbers), "%P")  # validatecommand
 
+    entry = ttk.Entry(row, width=10, textvariable=variable, validate="key", validatecommand=vcmd)
+    entry.pack(side="left")
+
+    edit_widgets.append(entry)
+
+# ----------------- CONFIG ROWS -----------------
 config_row(center, "Start game at:", start_game_at)
 config_row(center, "Shot Duration:", shot_duration)
 config_row(center, "Extention:", extension_seconds)
 config_row(center, "Alert At:", alert_time)
-
 
 # ----------------- COLOR ROW -----------------
 color_row = tk.Frame(center, bg="#121212")
@@ -119,9 +130,11 @@ ttk.Label(color_row, text="Normal Color:", style="Label.TLabel").pack(side="left
 
 normal_color_entry = ttk.Entry(color_row, width=10, textvariable=normal_color_value)
 normal_color_entry.pack(side="left", padx=5)
+edit_widgets.append(normal_color_entry)
 
-tk.Button(color_row, text="Select", command=lambda: choose_normal_color()).pack(side="left")
-
+normal_color_btn = tk.Button(color_row, text="Select", command=lambda: choose_normal_color())
+normal_color_btn.pack(side="left")
+edit_widgets.append(normal_color_btn)
 
 # ----------------- ALERT COLOR ROW -----------------
 color_row2 = tk.Frame(center, bg="#121212")
@@ -131,49 +144,46 @@ ttk.Label(color_row2, text="Alert Color:", style="Label.TLabel").pack(side="left
 
 alert_color_entry = ttk.Entry(color_row2, width=10, textvariable=alert_color_value)
 alert_color_entry.pack(side="left", padx=5)
+edit_widgets.append(alert_color_entry)
 
-tk.Button(color_row2, text="Select", command=lambda: choose_alert_color()).pack(side="left")
-
+alert_color_btn = tk.Button(color_row2, text="Select", command=lambda: choose_alert_color())
+alert_color_btn.pack(side="left")
+edit_widgets.append(alert_color_btn)
 
 # ----------------- ALERT ROW -----------------
 alert_row = tk.Frame(center, bg="#121212")
 alert_row.pack(pady=10)
 
-tk.Checkbutton(alert_row, text="Enable Alert", fg="white",
-               bg="#121212", selectcolor="#121212",
-               variable=alert_enabled).pack(side="left")
+alert_checkbox = tk.Checkbutton(alert_row, text="Enable Alert", fg="white",
+                                bg="#121212", selectcolor="#121212",
+                                variable=alert_enabled)
+alert_checkbox.pack(side="left")
+edit_widgets.append(alert_checkbox)
 
-tk.Button(alert_row, text="Select",
-          command=lambda: select_alert_file()).pack(side="left", padx=5)
-
+alert_sound_btn = tk.Button(alert_row, text="Select", command=lambda: select_alert_file())
+alert_sound_btn.pack(side="left", padx=5)
+edit_widgets.append(alert_sound_btn)
 
 # =====================================================
 # COLOR + SOUND FUNCTIONS
 # =====================================================
-
 def choose_normal_color():
     color = colorchooser.askcolor()[1]
     if color:
         normal_color_value.set(color)
         timer_label.config(foreground=color)
 
-
 def choose_alert_color():
     color = colorchooser.askcolor()[1]
     if color:
         alert_color_value.set(color)
 
-
 def select_alert_file():
     global alert_sound_path
-    path = filedialog.askopenfilename(
-        filetypes=[("WAV files", "*.wav")]
-    )
+    path = filedialog.askopenfilename(filetypes=[("WAV files", "*.wav")])
     if path:
         alert_sound_path = path
 
-
-# ----------------- ADDED SOUND FUNCTION -----------------
 def play_alert_sound(final=False):
     if not alert_enabled.get():
         return
@@ -186,6 +196,16 @@ def play_alert_sound(final=False):
         else:
             winsound.Beep(1200, 60)
 
+# =====================================================
+# 🔒 LOCK / UNLOCK FUNCTIONS
+# =====================================================
+def lock_editing():
+    for widget in edit_widgets:
+        widget.config(state="disabled")
+
+def unlock_editing():
+    for widget in edit_widgets:
+        widget.config(state="normal")
 
 # ----------------- TIMER FUNCTIONS -----------------
 def update_timer():
@@ -212,25 +232,26 @@ def update_timer():
         running = False
         timer_label.config(foreground=alert_color_value.get())
         play_alert_sound(final=True)
-
+        unlock_editing()
 
 def start_game():
     stop_timer()
     timer_value.set(start_game_at.get())
     timer_label.config(foreground=normal_color_value.get())
-
+    unlock_editing()
 
 def start_timer():
     global running
     if running:
         return
-    running = True
-    update_timer()
 
+    running = True
+    lock_editing()
+    update_timer()
 
 def pause_timer():
     stop_timer()
-
+    unlock_editing()
 
 def stop_timer():
     global running, timer_job
@@ -239,33 +260,15 @@ def stop_timer():
         root.after_cancel(timer_job)
         timer_job = None
 
-
 def reset_timer():
     stop_timer()
     timer_value.set(shot_duration.get())
     timer_label.config(foreground=normal_color_value.get())
-
+    unlock_editing()
 
 def add_extension():
     if timer_value.get() > 0:
         timer_value.set(timer_value.get() + extension_seconds.get())
-
-
-# ----------------- CONTROLS -----------------
-controls = tk.Frame(center, bg="#121212")
-controls.pack(pady=10)
-
-buttons_text = ["Start Game(G)", "Start(S)", "Pause(P)", "Reset(X)", "Extention(Space)"]
-buttons_command = [
-    start_game,
-    start_timer,
-    pause_timer,
-    reset_timer,
-    add_extension
-]
-
-for text, cmd in zip(buttons_text, buttons_command):
-    tk.Button(controls, text=text, command=cmd).pack(side="left", padx=5)
 
 
 # ----------------- KEYBINDINGS -----------------
