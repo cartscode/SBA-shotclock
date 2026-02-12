@@ -339,20 +339,66 @@ root.bind("p", lambda e: pause_timer())
 root.bind("x", lambda e: reset_timer())
 root.bind("<space>", lambda e: add_extension())
 
-# ---------- RIGHT TEAM ----------
+# ---------------- RIGHT TEAM ----------------
 right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 right_team.pack(side="left", fill="y", padx=10)
 
 ttk.Label(right_team, text="Team", style="Title.TLabel").pack(anchor="center")
-ttk.Entry(right_team, width=25).pack(pady=5)
 
-ttk.Label(right_team, text="Player's Name", style="Label.TLabel").pack(anchor="center", pady=(10, 5))
+team_name_var = tk.StringVar()
+team_entry = ttk.Entry(right_team, width=25, textvariable=team_name_var)
+team_entry.pack(pady=5)
 
-for _ in range(5):
+ttk.Label(right_team, text="Player's Name",
+          style="Label.TLabel").pack(anchor="center", pady=(10, 5))
+
+player_vars = []
+player_entries = []
+
+for i in range(5):
     row = tk.Frame(right_team, bg="#121212")
     row.pack(fill="x", pady=4)
+
     tk.Button(row, text="Select", width=8).pack(side="left")
-    ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
+
+    var = tk.StringVar()
+    entry = ttk.Entry(row, textvariable=var)
+    entry.pack(side="left", padx=5, fill="x", expand=True)
+
+    player_vars.append(var)
+    player_entries.append(entry)
+
+def save_team_data():
+    with open("right_team.txt", "w", encoding="utf-8") as file:
+        file.write(f"Team:{team_name_var.get()}\n")
+
+        for i, var in enumerate(player_vars):
+            file.write(f"Player{i+1}:{var.get()}\n")
+def load_team_data():
+    try:
+        with open("right_team.txt", "r", encoding="utf-8") as file:
+            lines = file.readlines()
+
+        for line in lines:
+            if line.startswith("Team:"):
+                team_name_var.set(line.strip().split(":", 1)[1])
+
+            elif line.startswith("Player"):
+                parts = line.strip().split(":", 1)
+                index = int(parts[0].replace("Player", "")) - 1
+                if 0 <= index < len(player_vars):
+                    player_vars[index].set(parts[1])
+
+    except FileNotFoundError:
+        pass
+def auto_save(*args):
+    save_team_data()
+
+team_name_var.trace_add("write", auto_save)
+
+for var in player_vars:
+    var.trace_add("write", auto_save)
+
 
 # ================== BOTTOM SECTION ==================
 bottom = tk.Frame(main, bg="black")
@@ -493,4 +539,5 @@ tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
 
 
 # ================== RUN ==================
+load_team_data()
 root.mainloop() 
