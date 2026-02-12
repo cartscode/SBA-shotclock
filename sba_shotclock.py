@@ -59,7 +59,6 @@ for _ in range(5):
     tk.Button(row, text="Select", width=8).pack(side="left")
     ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
 
-#---------------Need to be fix add function ---------------
 # ---------- CENTER TIMER ----------
 center = ttk.Frame(top, style="Card.TFrame", padding=10)
 center.pack(side="left", expand=True, fill="both", padx=10)
@@ -76,6 +75,7 @@ alert_enabled = tk.BooleanVar(value=True)
 
 running = False
 timer_job = None
+last_alert_played = None  # 🔥 prevent alert spam
 
 normal_color_value = tk.StringVar(value="white")
 alert_color_value = tk.StringVar(value="red")
@@ -94,24 +94,46 @@ timer_label = ttk.Label(
 )
 timer_label.pack()
 
-ttk.Label(center, text="EDIT MODE", foreground="#FFD700",
-          background="#121212", font=("Arial", 14, "bold")).pack(pady=5)
+mode_label = tk.Label(
+    center,
+    text="EDIT MODE",
+    fg="#FFD700",
+    bg="#121212",
+    font=("Arial", 14, "bold")
+)
+mode_label.pack(pady=5)
+
+
+# ----------------- DISPLAY WINDOW -----------------
+display_window = tk.Toplevel(root)
+display_window.title("Shot Clock Display")
+display_window.configure(bg="black")
+display_window.state("zoomed")
+
+display_label = tk.Label(
+    display_window,
+    textvariable=timer_value,
+    font=("Arial", 300, "bold"),
+    fg="white",
+    bg="black"
+)
+display_label.pack(expand=True)
 
 # ----------------- VALIDATION FUNCTION -----------------
 def only_numbers(P):
-    """Allow only digits in Entry"""
-    return P.isdigit() or P == ""  # empty allowed for deletion
+    return P.isdigit() or P == ""
 
-# ----------------- FIXED CONFIG ROW -----------------
+# ----------------- CONFIG ROW -----------------
 def config_row(parent, label, variable):
     row = tk.Frame(parent, bg="#121212")
     row.pack(pady=4)
 
     ttk.Label(row, text=label, style="Label.TLabel", width=15).pack(side="left")
 
-    vcmd = (parent.register(only_numbers), "%P")  # validatecommand
+    vcmd = (parent.register(only_numbers), "%P")
 
-    entry = ttk.Entry(row, width=10, textvariable=variable, validate="key", validatecommand=vcmd)
+    entry = ttk.Entry(row, width=10, textvariable=variable,
+                      validate="key", validatecommand=vcmd)
     entry.pack(side="left")
 
     edit_widgets.append(entry)
@@ -126,13 +148,17 @@ config_row(center, "Alert At:", alert_time)
 color_row = tk.Frame(center, bg="#121212")
 color_row.pack(pady=5)
 
-ttk.Label(color_row, text="Normal Color:", style="Label.TLabel").pack(side="left")
+ttk.Label(color_row, text="Normal Color:",
+          style="Label.TLabel").pack(side="left")
 
-normal_color_entry = ttk.Entry(color_row, width=10, textvariable=normal_color_value)
+normal_color_entry = ttk.Entry(color_row, width=10,
+                               textvariable=normal_color_value)
 normal_color_entry.pack(side="left", padx=5)
 edit_widgets.append(normal_color_entry)
 
-normal_color_btn = tk.Button(color_row, text="Select", command=lambda: choose_normal_color())
+normal_color_btn = tk.Button(
+    color_row, text="Select",
+    command=lambda: choose_normal_color())
 normal_color_btn.pack(side="left")
 edit_widgets.append(normal_color_btn)
 
@@ -140,13 +166,17 @@ edit_widgets.append(normal_color_btn)
 color_row2 = tk.Frame(center, bg="#121212")
 color_row2.pack(pady=5)
 
-ttk.Label(color_row2, text="Alert Color:", style="Label.TLabel").pack(side="left")
+ttk.Label(color_row2, text="Alert Color:",
+          style="Label.TLabel").pack(side="left")
 
-alert_color_entry = ttk.Entry(color_row2, width=10, textvariable=alert_color_value)
+alert_color_entry = ttk.Entry(color_row2, width=10,
+                              textvariable=alert_color_value)
 alert_color_entry.pack(side="left", padx=5)
 edit_widgets.append(alert_color_entry)
 
-alert_color_btn = tk.Button(color_row2, text="Select", command=lambda: choose_alert_color())
+alert_color_btn = tk.Button(
+    color_row2, text="Select",
+    command=lambda: choose_alert_color())
 alert_color_btn.pack(side="left")
 edit_widgets.append(alert_color_btn)
 
@@ -154,13 +184,17 @@ edit_widgets.append(alert_color_btn)
 alert_row = tk.Frame(center, bg="#121212")
 alert_row.pack(pady=10)
 
-alert_checkbox = tk.Checkbutton(alert_row, text="Enable Alert", fg="white",
-                                bg="#121212", selectcolor="#121212",
-                                variable=alert_enabled)
+alert_checkbox = tk.Checkbutton(
+    alert_row, text="Enable Alert",
+    fg="white", bg="#121212",
+    selectcolor="#121212",
+    variable=alert_enabled)
 alert_checkbox.pack(side="left")
 edit_widgets.append(alert_checkbox)
 
-alert_sound_btn = tk.Button(alert_row, text="Select", command=lambda: select_alert_file())
+alert_sound_btn = tk.Button(
+    alert_row, text="Select",
+    command=lambda: select_alert_file())
 alert_sound_btn.pack(side="left", padx=5)
 edit_widgets.append(alert_sound_btn)
 
@@ -172,6 +206,7 @@ def choose_normal_color():
     if color:
         normal_color_value.set(color)
         timer_label.config(foreground=color)
+        display_label.config(fg=color)
 
 def choose_alert_color():
     color = colorchooser.askcolor()[1]
@@ -197,54 +232,76 @@ def play_alert_sound(final=False):
             winsound.Beep(1200, 60)
 
 # =====================================================
-# 🔒 LOCK / UNLOCK FUNCTIONS
+# LOCK / UNLOCK
 # =====================================================
 def lock_editing():
     for widget in edit_widgets:
         widget.config(state="disabled")
 
+    mode_label.config(text="HOTKEY MODE", fg="#00FF00")
+
+
 def unlock_editing():
     for widget in edit_widgets:
         widget.config(state="normal")
 
-# ----------------- TIMER FUNCTIONS -----------------
+    mode_label.config(text="EDIT MODE", fg="#FFD700")
+
+
+# =====================================================
+# TIMER LOGIC
+# =====================================================
 def update_timer():
-    global running, timer_job
+    global running, timer_job, last_alert_played
 
     if not running:
         return
 
     current = timer_value.get()
 
-    if current > 0:
-        new_time = current - 1
-        timer_value.set(new_time)
-
-        if alert_enabled.get() and new_time <= alert_time.get():
-            timer_label.config(foreground=alert_color_value.get())
-            play_alert_sound()
-        else:
-            timer_label.config(foreground=normal_color_value.get())
-
-        timer_job = root.after(1000, update_timer)
-
-    else:
+    if current <= 0:
         running = False
         timer_label.config(foreground=alert_color_value.get())
+        display_label.config(fg=alert_color_value.get())
         play_alert_sound(final=True)
         unlock_editing()
+        return
+
+    # 🔥 Handle alert color BEFORE decrement
+    if alert_enabled.get() and current <= alert_time.get():
+        timer_label.config(foreground=alert_color_value.get())
+        display_label.config(fg=alert_color_value.get())
+
+        if last_alert_played != current:
+            play_alert_sound()
+            last_alert_played = current
+    else:
+        timer_label.config(foreground=normal_color_value.get())
+        display_label.config(fg=normal_color_value.get())
+
+    # 🔥 Wait 1 second THEN decrease
+    timer_job = root.after(1000, decrement_timer)
+def decrement_timer():
+    if running:
+        timer_value.set(timer_value.get() - 1)
+        update_timer()
+
 
 def start_game():
+    global last_alert_played
     stop_timer()
+    last_alert_played = None
     timer_value.set(start_game_at.get())
     timer_label.config(foreground=normal_color_value.get())
+    display_label.config(fg=normal_color_value.get())
     unlock_editing()
 
 def start_timer():
-    global running
+    global running, last_alert_played
     if running:
         return
 
+    last_alert_played = None
     running = True
     lock_editing()
     update_timer()
@@ -261,14 +318,18 @@ def stop_timer():
         timer_job = None
 
 def reset_timer():
+    global last_alert_played
     stop_timer()
+    last_alert_played = None
     timer_value.set(shot_duration.get())
     timer_label.config(foreground=normal_color_value.get())
+    display_label.config(fg=normal_color_value.get())
     unlock_editing()
 
 def add_extension():
     if timer_value.get() > 0:
         timer_value.set(timer_value.get() + extension_seconds.get())
+
 
 
 # ----------------- KEYBINDINGS -----------------
