@@ -1,4 +1,4 @@
-Team:dragons
+Team:dragon
 Player1:Direk Eric
 Player2:Juno
 Player3:bob
