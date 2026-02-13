@@ -46,18 +46,63 @@ top.pack(fill="x")
 # ---------- LEFT TEAM ----------
 left_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 left_team.pack(side="left", fill="y", padx=10)
-    
 
 ttk.Label(left_team, text="Team", style="Title.TLabel").pack(anchor="center")
-ttk.Entry(left_team, width=25).pack(pady=5)
 
-ttk.Label(left_team, text="Player's Name", style="Label.TLabel").pack(anchor="center", pady=(10, 5))
+left_team_name_var = tk.StringVar()
+left_team_entry = ttk.Entry(left_team, width=25, textvariable=left_team_name_var)
+left_team_entry.pack(pady=5)
 
-for _ in range(5):
+ttk.Label(left_team, text="Player's Name",
+          style="Label.TLabel").pack(anchor="center", pady=(10, 5))
+
+left_player_vars = []
+left_player_entries = []
+
+for i in range(5):
     row = tk.Frame(left_team, bg="#121212")
     row.pack(fill="x", pady=4)
+
     tk.Button(row, text="Select", width=8).pack(side="left")
-    ttk.Entry(row).pack(side="left", padx=5, fill="x", expand=True)
+
+    var = tk.StringVar()
+    entry = ttk.Entry(row, textvariable=var)
+    entry.pack(side="left", padx=5, fill="x", expand=True)
+
+    left_player_vars.append(var)
+    left_player_entries.append(entry)
+
+def save_left_team_data():
+    with open("left_team.txt", "w", encoding="utf-8") as file:
+        file.write(f"Team:{left_team_name_var.get()}\n")
+
+        for i, var in enumerate(left_player_vars):
+            file.write(f"Player{i+1}:{var.get()}\n")
+def load_left_team_data():
+    try:
+        with open("left_team.txt", "r", encoding="utf-8") as file:
+            lines = file.readlines()
+
+        for line in lines:
+            if line.startswith("Team:"):
+                left_team_name_var.set(line.strip().split(":", 1)[1])
+
+            elif line.startswith("Player"):
+                parts = line.strip().split(":", 1)
+                index = int(parts[0].replace("Player", "")) - 1
+                if 0 <= index < len(left_player_vars):
+                    left_player_vars[index].set(parts[1])
+
+    except FileNotFoundError:
+        pass
+def auto_save_left(*args):
+    save_left_team_data()
+
+left_team_name_var.trace_add("write", auto_save_left)
+
+for var in left_player_vars:
+    var.trace_add("write", auto_save_left)
+
 
 # ---------- CENTER TIMER ----------
 center = ttk.Frame(top, style="Card.TFrame", padding=10)
@@ -539,5 +584,6 @@ tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
 
 
 # ================== RUN ==================
+load_left_team_data()
 load_team_data()
 root.mainloop() 
