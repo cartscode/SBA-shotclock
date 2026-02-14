@@ -113,8 +113,8 @@ timer_value = tk.IntVar(value=40)
 
 start_game_at = tk.IntVar(value=40)
 shot_duration = tk.IntVar(value=30)
-extension_seconds = tk.IntVar(value=0)
-alert_time = tk.IntVar(value=15)
+extension_seconds = tk.IntVar(value=15)
+alert_time = tk.IntVar(value=0)
 
 alert_enabled = tk.BooleanVar(value=True)
 
