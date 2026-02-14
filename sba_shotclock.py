@@ -169,6 +169,8 @@ def only_numbers(P):
     return P.isdigit() or P == ""
 
 # ----------------- CONFIG ROW -----------------
+shotclock_entries = []
+
 def config_row(parent, label, variable):
     row = tk.Frame(parent, bg="#121212")
     row.pack(pady=4)
@@ -181,7 +183,10 @@ def config_row(parent, label, variable):
                       validate="key", validatecommand=vcmd)
     entry.pack(side="left")
 
+    # 🔥 MUST BE INSIDE FUNCTION
     edit_widgets.append(entry)
+    shotclock_entries.append(entry)
+
 
 # ----------------- CONFIG ROWS -----------------
 config_row(center, "Start game at:", start_game_at)
@@ -378,11 +383,39 @@ def add_extension():
 
 
 # ----------------- KEYBINDINGS -----------------
-root.bind("g", lambda e: start_game())
-root.bind("s", lambda e: start_timer())
-root.bind("p", lambda e: pause_timer())
-root.bind("x", lambda e: reset_timer())
-root.bind("<space>", lambda e: add_extension())
+def allow_hotkeys():
+    focused = root.focus_get()
+    return focused in shotclock_entries
+
+# ----------------- SAFE HOTKEY SYSTEM -----------------
+
+def safe_start_game(event=None):
+    if allow_hotkeys():
+        start_game()
+
+def safe_start_timer(event=None):
+    if allow_hotkeys():
+        start_timer()
+
+def safe_pause(event=None):
+    if allow_hotkeys():
+        pause_timer()
+
+def safe_reset(event=None):
+    if allow_hotkeys():
+        reset_timer()
+
+def safe_extension(event=None):
+    if allow_hotkeys():
+        add_extension()
+
+
+# ----------------- KEYBINDINGS -----------------
+root.bind("g", safe_start_game)
+root.bind("s", safe_start_timer)
+root.bind("p", safe_pause)
+root.bind("x", safe_reset)
+root.bind("<space>", safe_extension)
 
 # ---------------- RIGHT TEAM ----------------
 right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
