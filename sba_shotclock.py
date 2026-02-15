@@ -66,7 +66,7 @@ for i in range(5):
     var = tk.StringVar()
 
     def make_select(v):
-        return lambda: player1_name_var.set(v.get())
+       return lambda: [player1_name_var.set(v.get()), update_obs_player_names()] # 🔥 also update OBS file when selecting player
 
     select_btn = tk.Button(
         row,
@@ -451,7 +451,8 @@ for i in range(5):
     var = tk.StringVar()
 
     def make_select(v):
-        return lambda: player2_name_var.set(v.get())
+       return lambda: [player2_name_var.set(v.get()), update_obs_player_names()] # 🔥 also update OBS file when selecting player
+
 
     select_btn = tk.Button(
         row,
@@ -644,6 +645,14 @@ tk.Button(fe_row2, text="Reset", width=6).grid(row=0, column=3, padx=5)
 tk.Label(fe_row2, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
 ttk.Label(fe_row2, text="1", width=3, anchor="center").grid(row=1, column=1)
 tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
+
+#player name update for obs.
+def update_obs_player_names():
+    with open("obs_player1.txt", "w", encoding="utf-8") as f:
+        f.write(player1_name_var.get())
+
+    with open("obs_player2.txt", "w", encoding="utf-8") as f:
+        f.write(player2_name_var.get())
 
 
 # ================== RUN ==================
