@@ -63,14 +63,25 @@ for i in range(5):
     row = tk.Frame(left_team, bg="#121212")
     row.pack(fill="x", pady=4)
 
-    tk.Button(row, text="Select", width=8).pack(side="left")
-
     var = tk.StringVar()
+
+    def make_select(v):
+        return lambda: player1_name_var.set(v.get())
+
+    select_btn = tk.Button(
+        row,
+        text="Select",
+        width=8,
+        command=make_select(var)
+    )
+    select_btn.pack(side="left")
+
     entry = ttk.Entry(row, textvariable=var)
     entry.pack(side="left", padx=5, fill="x", expand=True)
 
     left_player_vars.append(var)
     left_player_entries.append(entry)
+
 
 def save_left_team_data():
     with open("left_team.txt", "w", encoding="utf-8") as file:
@@ -506,10 +517,14 @@ ttk.Label(
 ).grid(row=0, column=0, sticky="e", padx=(0, 8))
 
 # Custom width Entry
+player1_name_var = tk.StringVar()
+
 nick1 = ttk.Entry(
     name_row1,
-    width=24   # 👈 adjust freely
+    width=24,
+    textvariable=player1_name_var
 )
+
 nick1.grid(row=0, column=1, sticky="w")
 
 

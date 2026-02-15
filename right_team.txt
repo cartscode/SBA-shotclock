@@ -1,6 +1,6 @@
 Team:Stallions
-Player1:carter
-Player2: Mark
-Player3:kyle
-Player4:Daniel
-Player5:Ariane
+Player1:
+Player2:
+Player3:
+Player4:
+Player5:
