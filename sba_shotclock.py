@@ -505,6 +505,19 @@ for var in player_vars:
 player1_score = tk.IntVar(value=0)
 player2_score = tk.IntVar(value=0)
 
+# ================= SCORE AUTO SAVE =================
+def save_scores_to_obs(*args):
+    # Player 1 score
+    with open("obs_player1_score.txt", "w", encoding="utf-8") as f:
+        f.write(str(player1_score.get()))
+
+    # Player 2 score
+    with open("obs_player2_score.txt", "w", encoding="utf-8") as f:
+        f.write(str(player2_score.get()))
+        
+player1_score.trace_add("write", save_scores_to_obs)
+player2_score.trace_add("write", save_scores_to_obs)
+
 # ================= SCORE FUNCTION =================
 def change_score(score_var, amount):
     new_value = score_var.get() + amount
@@ -669,7 +682,9 @@ def update_obs_player_names():
         f.write(player2_name_var.get())
 
 
+
 # ================== RUN ==================
 load_left_team_data()
 load_team_data()
+save_scores_to_obs()
 root.mainloop()

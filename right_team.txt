@@ -1,6 +1,6 @@
 Team:Stallions
 Player1:carter
-Player2:
-Player3:
+Player2:brenstom
+Player3:denver
 Player4:
 Player5:
