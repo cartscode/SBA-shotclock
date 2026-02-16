@@ -169,7 +169,7 @@ display_window.state("zoomed")
 display_label = tk.Label(
     display_window,
     textvariable=timer_value,
-    font=("Arial", 300, "bold"),
+    font=("Arial", 600, "bold"),
     fg="white",
     bg="black"
 )
