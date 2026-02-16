@@ -1,6 +1,6 @@
 Team:Stallions
 Player1:carter
-Player2:hero
-Player3:Kyle
-Player4:Daniel
-Player5:Gwen
+Player2:
+Player3:
+Player4:
+Player5:

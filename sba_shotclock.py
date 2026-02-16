@@ -500,162 +500,192 @@ team_name_var.trace_add("write", auto_save)
 for var in player_vars:
     var.trace_add("write", auto_save)
 
+    # ================= SCORE VARIABLES =================
+    player1_score = tk.IntVar(value=0)
+    player2_score = tk.IntVar(value=0)
 
-# ================== BOTTOM SECTION ==================
-bottom = tk.Frame(main, bg="black")
-bottom.pack(fill="x", pady=20)
+    # ================= SCORE FUNCTION =================
+    def change_score(score_var, amount):
+        new_value = score_var.get() + amount
+        if new_value < 0:
+            new_value = 0
+        score_var.set(new_value)
 
-# ---------- PLAYER 1 ----------
-p1 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
-p1.pack(side="left", fill="x", expand=True, padx=10)
+    def reset_all_scores():
+        player1_score.set(0)
+        player2_score.set(0)
+    # ================== BOTTOM SECTION ==================
+    bottom = tk.Frame(main, bg="black")
+    bottom.pack(fill="x", pady=20)
 
-ttk.Label(
-    p1,
-    text="Player 1",
-    style="Title.TLabel"
-).pack(anchor="center")
+    # ---------- PLAYER 1 ----------
+    p1 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
+    p1.pack(side="left", fill="x", expand=True, padx=10)
 
-name_row1 = tk.Frame(p1, bg="#121212")
-name_row1.pack(pady=5)
+    ttk.Label(
+        p1,
+        text="Player 1",
+        style="Title.TLabel"
+    ).pack(anchor="center")
 
-# STOP auto expansion
-name_row1.columnconfigure(0, weight=0)
-name_row1.columnconfigure(1, weight=0)
+    name_row1 = tk.Frame(p1, bg="#121212")
+    name_row1.pack(pady=5)
 
-ttk.Label(
-    name_row1,
-    text="Name:",
-    style="Label.TLabel"
-).grid(row=0, column=0, sticky="e", padx=(0, 8))
+    # STOP auto expansion
+    name_row1.columnconfigure(0, weight=0)
+    name_row1.columnconfigure(1, weight=0)
 
-# Custom width Entry
-player1_name_var = tk.StringVar()
+    ttk.Label(
+        name_row1,
+        text="Name:",
+        style="Label.TLabel"
+    ).grid(row=0, column=0, sticky="e", padx=(0, 8))
 
-nick1 = ttk.Entry(
-    name_row1,
-    width=24,
-    textvariable=player1_name_var
-)
+    # Custom width Entry
+    player1_name_var = tk.StringVar()
 
-nick1.grid(row=0, column=1, sticky="w")
+    nick1 = ttk.Entry(
+        name_row1,
+        width=24,
+        textvariable=player1_name_var
+    )
 
-
-
-
-# SCORE
-score_row = tk.Frame(p1, bg="#121212")
-score_row.pack(pady=10)
-
-tk.Button(score_row, text="-", width=4).pack(side="left")
-ttk.Label(score_row, text="0", font=("Arial", 32, "bold"),
-          background="#121212", foreground="white").pack(side="left", padx=10)
-tk.Button(score_row, text="+", width=4).pack(side="left")
-
-# FOUL & EXT
-fe_row = tk.Frame(p1, bg="#121212")
-fe_row.pack(pady=10)
-
-# FOUL
-tk.Label(fe_row, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
-ttk.Label(fe_row, text="0", width=3, anchor="center").grid(row=0, column=1)
-tk.Button(fe_row, text="+", width=3).grid(row=0, column=2)
-tk.Button(fe_row, text="Reset", width=6).grid(row=0, column=3, padx=5)
-
-# EXT
-tk.Label(fe_row, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
-ttk.Label(fe_row, text="1", width=3, anchor="center").grid(row=1, column=1)
-tk.Button(fe_row, text="-", width=3).grid(row=1, column=2)
-
-# ---------- CENTER CONTROL ----------
-mid = ttk.Frame(bottom, style="Card.TFrame", padding=10)
-mid.pack(side="left", padx=10)
-
-ttk.Entry(mid, justify="center", width=30).pack(fill="x", pady=5)
-ttk.Label(mid, text="Label", style="Label.TLabel").pack()
-tk.Button(mid, text="<- Switch ->").pack(pady=5)
-tk.Button(mid, text="Reset Score").pack(pady=5)
-tk.Checkbutton(mid, text="Auto Update", fg="white",
-               bg="#121212", selectcolor="#121212").pack(pady=5)
-tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
-          bg="#BDBDBD").pack(pady=10, fill="x")
-
-# ---------- PLAYER 2 ----------
-# Player 2 card
-p2 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
-p2.pack(side="left", fill="x", expand=True, padx=10)
-
-# Title
-ttk.Label(
-    p2,
-    text="Player 2",
-    style="Title.TLabel"
-).pack(anchor="center")
-
-# Name row
-name_row2 = tk.Frame(p2, bg="#121212")
-name_row2.pack(pady=5)
-
-# DO NOT allow column expansion
-name_row2.columnconfigure(0, weight=0)
-name_row2.columnconfigure(1, weight=0)
-
-# Label
-ttk.Label(
-    name_row2,
-    text="Name:",
-    style="Label.TLabel"
-).grid(row=0, column=0, sticky="e", padx=(0, 8))
-
-# Entry (custom width)
-player2_name_var = tk.StringVar()
-
-nick2 = ttk.Entry(
-    name_row2,
-    width=24,
-    textvariable=player2_name_var
-)
-
-
-# IMPORTANT: no horizontal stretching
-nick2.grid(row=0, column=1, sticky="w")
+    nick1.grid(row=0, column=1, sticky="w")
 
 
 
 
-# SCORE
-score_row2 = tk.Frame(p2, bg="#121212")
-score_row2.pack(pady=10)
+    # SCORE
+    score_row = tk.Frame(p1, bg="#121212")
+    score_row.pack(pady=10)
 
-tk.Button(score_row2, text="-", width=4).pack(side="left")
-ttk.Label(score_row2, text="0", font=("Arial", 32, "bold"),
-          background="#121212", foreground="white").pack(side="left", padx=10)
-tk.Button(score_row2, text="+", width=4).pack(side="left")
+    tk.Button(score_row, text="-", width=4,
+          command=lambda: change_score(player1_score, -1)).pack(side="left")
 
-# FOUL & EXT
-fe_row2 = tk.Frame(p2, bg="#121212")
-fe_row2.pack(pady=10)
+    ttk.Label(score_row,
+          textvariable=player1_score,
+          font=("Arial", 32, "bold"),
+          background="#121212",
+          foreground="white").pack(side="left", padx=10)
 
-# FOUL
-tk.Label(fe_row2, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
-ttk.Label(fe_row2, text="0", width=3, anchor="center").grid(row=0, column=1)
-tk.Button(fe_row2, text="+", width=3).grid(row=0, column=2)
-tk.Button(fe_row2, text="Reset", width=6).grid(row=0, column=3, padx=5)
-
-# EXT
-tk.Label(fe_row2, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
-ttk.Label(fe_row2, text="1", width=3, anchor="center").grid(row=1, column=1)
-tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
-
-#player name update for obs.
-def update_obs_player_names():
-    with open("obs_player1.txt", "w", encoding="utf-8") as f:
-        f.write(player1_name_var.get())
-
-    with open("obs_player2.txt", "w", encoding="utf-8") as f:
-        f.write(player2_name_var.get())
+    tk.Button(score_row, text="+", width=4,
+          command=lambda: change_score(player1_score, 1)).pack(side="left")
 
 
-# ================== RUN ==================
-load_left_team_data()
-load_team_data()
-root.mainloop() 
+    # FOUL & EXT
+    fe_row = tk.Frame(p1, bg="#121212")
+    fe_row.pack(pady=10)
+
+    # FOUL
+    tk.Label(fe_row, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
+    ttk.Label(fe_row, text="0", width=3, anchor="center").grid(row=0, column=1)
+    tk.Button(fe_row, text="+", width=3).grid(row=0, column=2)
+    tk.Button(fe_row, text="Reset", width=6).grid(row=0, column=3, padx=5)
+
+    # EXT
+    tk.Label(fe_row, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
+    ttk.Label(fe_row, text="1", width=3, anchor="center").grid(row=1, column=1)
+    tk.Button(fe_row, text="-", width=3).grid(row=1, column=2)
+
+    # ---------- CENTER CONTROL ----------
+    mid = ttk.Frame(bottom, style="Card.TFrame", padding=10)
+    mid.pack(side="left", padx=10)
+
+    ttk.Entry(mid, justify="center", width=30).pack(fill="x", pady=5)
+    ttk.Label(mid, text="Label", style="Label.TLabel").pack()
+    tk.Button(mid, text="<- Switch ->").pack(pady=5)
+    tk.Button(mid, text="Reset Score",
+          command=reset_all_scores).pack(pady=5)
+    tk.Checkbutton(mid, text="Auto Update", fg="white",
+                bg="#121212", selectcolor="#121212").pack(pady=5)
+    tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
+            bg="#BDBDBD").pack(pady=10, fill="x")
+
+    # ---------- PLAYER 2 ----------
+    # Player 2 card
+    p2 = ttk.Frame(bottom, style="Card.TFrame", padding=10)
+    p2.pack(side="left", fill="x", expand=True, padx=10)
+
+    # Title
+    ttk.Label(
+        p2,
+        text="Player 2",
+        style="Title.TLabel"
+    ).pack(anchor="center")
+
+    # Name row
+    name_row2 = tk.Frame(p2, bg="#121212")
+    name_row2.pack(pady=5)
+
+    # DO NOT allow column expansion
+    name_row2.columnconfigure(0, weight=0)
+    name_row2.columnconfigure(1, weight=0)
+
+    # Label
+    ttk.Label(
+        name_row2,
+        text="Name:",
+        style="Label.TLabel"
+    ).grid(row=0, column=0, sticky="e", padx=(0, 8))
+
+    # Entry (custom width)
+    player2_name_var = tk.StringVar()
+
+    nick2 = ttk.Entry(
+        name_row2,
+        width=24,
+        textvariable=player2_name_var
+    )
+
+
+    # IMPORTANT: no horizontal stretching
+    nick2.grid(row=0, column=1, sticky="w")
+
+
+
+
+    # SCORE
+    score_row2 = tk.Frame(p2, bg="#121212")
+    score_row2.pack(pady=10)
+
+    tk.Button(score_row2, text="-", width=4,
+          command=lambda: change_score(player2_score, -1)).pack(side="left")
+
+    ttk.Label(score_row2,
+          textvariable=player2_score,
+          font=("Arial", 32, "bold"),
+          background="#121212",
+          foreground="white").pack(side="left", padx=10)
+
+    tk.Button(score_row2, text="+", width=4,
+          command=lambda: change_score(player2_score, 1)).pack(side="left")
+
+
+    # FOUL & EXT
+    fe_row2 = tk.Frame(p2, bg="#121212")
+    fe_row2.pack(pady=10)
+
+    # FOUL
+    tk.Label(fe_row2, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
+    ttk.Label(fe_row2, text="0", width=3, anchor="center").grid(row=0, column=1)
+    tk.Button(fe_row2, text="+", width=3).grid(row=0, column=2)
+    tk.Button(fe_row2, text="Reset", width=6).grid(row=0, column=3, padx=5)
+
+    # EXT
+    tk.Label(fe_row2, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
+    ttk.Label(fe_row2, text="1", width=3, anchor="center").grid(row=1, column=1)
+    tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
+
+    #player name update for obs.
+    def update_obs_player_names():
+        with open("obs_player1.txt", "w", encoding="utf-8") as f:
+            f.write(player1_name_var.get())
+
+        with open("obs_player2.txt", "w", encoding="utf-8") as f:
+            f.write(player2_name_var.get())
+
+
+    # ================== RUN ==================
+    load_left_team_data()
+    load_team_data()
+    root.mainloop() 
