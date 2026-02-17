@@ -504,6 +504,12 @@ for var in player_vars:
 # ================= SCORE VARIABLES =================
 player1_score = tk.IntVar(value=0)
 player2_score = tk.IntVar(value=0)
+# ================= FOUL & EXT VARIABLES =================
+player1_foul = tk.IntVar(value=0)
+player1_ext = tk.IntVar(value=1)
+
+player2_foul = tk.IntVar(value=0)
+player2_ext = tk.IntVar(value=1)
 
 # ================= SCORE AUTO SAVE =================
 def save_scores_to_obs(*args):
@@ -518,7 +524,32 @@ def save_scores_to_obs(*args):
 player1_score.trace_add("write", save_scores_to_obs)
 player2_score.trace_add("write", save_scores_to_obs)
 
-# ================= SCORE FUNCTION =================
+# ================= FOUL & EXT AUTO SAVE =================
+def save_foul_ext_to_obs(*args):
+
+    # Convert number to black dots
+    p1_dots = "●" * player1_foul.get()
+    p2_dots = "●" * player2_foul.get()
+
+    with open("obs_player1_foul.txt", "w", encoding="utf-8") as f:
+        f.write(p1_dots.strip())
+
+    with open("obs_player2_foul.txt", "w", encoding="utf-8") as f:
+        f.write(p2_dots.strip())
+
+    # Extension stays number
+    with open("obs_player1_ext.txt", "w", encoding="utf-8") as f:
+        f.write(str(player1_ext.get()))
+
+    with open("obs_player2_ext.txt", "w", encoding="utf-8") as f:
+        f.write(str(player2_ext.get()))
+
+player1_foul.trace_add("write", save_foul_ext_to_obs)
+player2_foul.trace_add("write", save_foul_ext_to_obs)
+player1_ext.trace_add("write", save_foul_ext_to_obs)
+player2_ext.trace_add("write", save_foul_ext_to_obs)
+
+# ================ SCORE FUNCTION =================
 def change_score(score_var, amount):
     new_value = score_var.get() + amount
     if new_value < 0:
@@ -529,6 +560,15 @@ def reset_all_scores():
     player1_score.set(0)
     player2_score.set(0)
 
+# ================= FOUL & EXT FUNCTIONS =================
+def change_stat(stat_var, amount, minimum=0):
+    new_value = stat_var.get() + amount
+    if new_value < minimum:
+        new_value = minimum
+    stat_var.set(new_value)
+
+def reset_stat(stat_var, value=0):
+    stat_var.set(value)
 
 # ================== BOTTOM SECTION ==================
 bottom = tk.Frame(main, bg="black")
@@ -582,19 +622,34 @@ ttk.Label(score_row,
 tk.Button(score_row, text="+", width=4,
       command=lambda: change_score(player1_score, 1)).pack(side="left")
 
-
 # FOUL & EXT
 fe_row = tk.Frame(p1, bg="#121212")
 fe_row.pack(pady=10)
 
 tk.Label(fe_row, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
-ttk.Label(fe_row, text="0", width=3, anchor="center").grid(row=0, column=1)
-tk.Button(fe_row, text="+", width=3).grid(row=0, column=2)
-tk.Button(fe_row, text="Reset", width=6).grid(row=0, column=3, padx=5)
+
+ttk.Label(
+    fe_row,
+    textvariable=player1_foul,
+    width=3,
+    anchor="center"
+).grid(row=0, column=1)
+
+
+tk.Button(fe_row, text="+", width=3,
+          command=lambda: change_stat(player1_foul, 1)).grid(row=0, column=2)
+
+tk.Button(fe_row, text="Reset", width=6,
+          command=lambda: reset_stat(player1_foul, 0)).grid(row=0, column=3, padx=5)
+
 
 tk.Label(fe_row, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
-ttk.Label(fe_row, text="1", width=3, anchor="center").grid(row=1, column=1)
-tk.Button(fe_row, text="-", width=3).grid(row=1, column=2)
+
+ttk.Label(fe_row, textvariable=player1_ext, width=3, anchor="center").grid(row=1, column=1)
+
+tk.Button(fe_row, text="-", width=3,
+          command=lambda: change_stat(player1_ext, -1, minimum=0)).grid(row=1, column=2)
+
 
 
 # ---------- CENTER CONTROL ----------
@@ -659,18 +714,33 @@ ttk.Label(score_row2,
 tk.Button(score_row2, text="+", width=4,
       command=lambda: change_score(player2_score, 1)).pack(side="left")
 
-
+#foul and ext player 2
 fe_row2 = tk.Frame(p2, bg="#121212")
 fe_row2.pack(pady=10)
 
 tk.Label(fe_row2, text="Foul:", fg="white", bg="#121212").grid(row=0, column=0, padx=5)
-ttk.Label(fe_row2, text="0", width=3, anchor="center").grid(row=0, column=1)
-tk.Button(fe_row2, text="+", width=3).grid(row=0, column=2)
-tk.Button(fe_row2, text="Reset", width=6).grid(row=0, column=3, padx=5)
+
+ttk.Label(
+    fe_row2,
+    textvariable=player2_foul,
+    width=3,
+    anchor="center"
+).grid(row=0, column=1)
+
+
+tk.Button(fe_row2, text="+", width=3,
+          command=lambda: change_stat(player2_foul, 1)).grid(row=0, column=2)
+
+tk.Button(fe_row2, text="Reset", width=6,
+          command=lambda: reset_stat(player2_foul, 0)).grid(row=0, column=3, padx=5)
+
 
 tk.Label(fe_row2, text="Ext:", fg="white", bg="#121212").grid(row=1, column=0, padx=5, pady=5)
-ttk.Label(fe_row2, text="1", width=3, anchor="center").grid(row=1, column=1)
-tk.Button(fe_row2, text="-", width=3).grid(row=1, column=2)
+
+ttk.Label(fe_row2, textvariable=player2_ext, width=3, anchor="center").grid(row=1, column=1)
+
+tk.Button(fe_row2, text="-", width=3,
+          command=lambda: change_stat(player2_ext, -1, minimum=0)).grid(row=1, column=2)
 
 
 # player name update for obs.
@@ -683,8 +753,11 @@ def update_obs_player_names():
 
 
 
+
+
 # ================== RUN ==================
 load_left_team_data()
 load_team_data()
 save_scores_to_obs()
+save_foul_ext_to_obs()
 root.mainloop()
