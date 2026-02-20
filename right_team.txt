@@ -1,6 +1,7 @@
-Team:Stallions
-Player1:carter
-Player2:brenstom
+Team:Negros Occidental Pillars
+Player1:
+Player2:Drachir Maricho
 Player3:denver
 Player4:
 Player5:
+Player6:

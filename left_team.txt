@@ -1,6 +1,7 @@
-Team:dragon
-Player1:Direk Eric
-Player2:Juno
+Team:Quezon City Dragons
+Player1:
+Player2:Baseth Mocaibath
 Player3:bob
 Player4:bimbs
 Player5:AJ Ong
+Player6:

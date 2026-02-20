@@ -59,7 +59,7 @@ ttk.Label(left_team, text="Player's Name",
 left_player_vars = []
 left_player_entries = []
 
-for i in range(5):
+for i in range(6):
     row = tk.Frame(left_team, bg="#121212")
     row.pack(fill="x", pady=4)
 
@@ -444,7 +444,7 @@ ttk.Label(right_team, text="Player's Name",
 player_vars = []
 player_entries = []
 
-for i in range(5):
+for i in range(6):
     row = tk.Frame(right_team, bg="#121212")
     row.pack(fill="x", pady=4)
 
