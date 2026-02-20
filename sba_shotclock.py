@@ -634,6 +634,8 @@ ttk.Label(
     width=3,
     anchor="center"
 ).grid(row=0, column=1)
+tk.Button(fe_row, text="+", width=3,
+          command=lambda: change_stat(player1_ext, 1)).grid(row=1, column=3)
 
 
 tk.Button(fe_row, text="+", width=3,
@@ -741,7 +743,8 @@ ttk.Label(fe_row2, textvariable=player2_ext, width=3, anchor="center").grid(row=
 
 tk.Button(fe_row2, text="-", width=3,
           command=lambda: change_stat(player2_ext, -1, minimum=0)).grid(row=1, column=2)
-
+tk.Button(fe_row2, text="+", width=3,
+          command=lambda: change_stat(player2_ext, 1)).grid(row=1, column=3)
 
 # player name update for obs.
 def update_obs_player_names():
