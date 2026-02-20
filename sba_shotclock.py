@@ -569,7 +569,11 @@ def change_stat(stat_var, amount, minimum=0):
 
 def reset_stat(stat_var, value=0):
     stat_var.set(value)
-
+#---obs center label update---
+def save_center_label(*args):
+    with open("obs_center_label.txt", "w", encoding="utf-8") as f:
+        f.write(center_label_var.get())
+    
 # ================== BOTTOM SECTION ==================
 bottom = tk.Frame(main, bg="black")
 bottom.pack(fill="x", pady=20)
@@ -658,15 +662,47 @@ tk.Button(fe_row, text="-", width=3,
 mid = ttk.Frame(bottom, style="Card.TFrame", padding=10)
 mid.pack(side="left", padx=10)
 
-ttk.Entry(mid, justify="center", width=30).pack(fill="x", pady=5)
+center_label_var = tk.StringVar()
+
+label_entry = ttk.Entry(
+    mid,
+    justify="center",
+    width=30,
+    textvariable=center_label_var
+)
+label_entry.pack(fill="x", pady=5)
 ttk.Label(mid, text="Label", style="Label.TLabel").pack()
 tk.Button(mid, text="<- Switch ->").pack(pady=5)
 tk.Button(mid, text="Reset Score",
       command=reset_all_scores).pack(pady=5)
-tk.Checkbutton(mid, text="Auto Update", fg="white",
-            bg="#121212", selectcolor="#121212").pack(pady=5)
-tk.Button(mid, text="UPDATE", font=("Arial", 18, "bold"),
-        bg="#BDBDBD").pack(pady=10, fill="x")
+auto_update_var = tk.BooleanVar(value=False)
+
+def auto_update_trigger(*args):
+    if auto_update_var.get():
+        manual_update()
+
+tk.Checkbutton(
+    mid,
+    text="Auto Update",
+    fg="white",
+    bg="#121212",
+    selectcolor="#121212",
+    variable=auto_update_var
+).pack(pady=5)
+def manual_update():
+    update_obs_player_names()
+    save_scores_to_obs()
+    save_foul_ext_to_obs()
+    save_center_label()
+
+update_btn = tk.Button(
+    mid,
+    text="UPDATE",
+    font=("Arial", 18, "bold"),
+    bg="#BDBDBD",
+    command=manual_update
+)
+update_btn.pack(pady=10, fill="x")
 
 
 # ---------- PLAYER 2 ----------
@@ -753,10 +789,20 @@ def update_obs_player_names():
 
     with open("obs_player2.txt", "w", encoding="utf-8") as f:
         f.write(player2_name_var.get())
+# ================= AUTO UPDATE BINDINGS =================
 
+player1_name_var.trace_add("write", auto_update_trigger)
+player2_name_var.trace_add("write", auto_update_trigger)
+center_label_var.trace_add("write", auto_update_trigger)
 
+player1_score.trace_add("write", auto_update_trigger)
+player2_score.trace_add("write", auto_update_trigger)
 
+player1_foul.trace_add("write", auto_update_trigger)
+player2_foul.trace_add("write", auto_update_trigger)
 
+player1_ext.trace_add("write", auto_update_trigger)
+player2_ext.trace_add("write", auto_update_trigger)
 
 # ================== RUN ==================
 load_left_team_data()
