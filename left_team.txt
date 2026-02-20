@@ -1,4 +1,4 @@
-Team:Quezon City Dragons
+Team:dragon
 Player1:
 Player2:Baseth Mocaibath
 Player3:bob

@@ -1,4 +1,4 @@
-Team:Negros Occidental Pillars
+Team:pillars
 Player1:
 Player2:Drachir Maricho
 Player3:denver

@@ -672,7 +672,46 @@ label_entry = ttk.Entry(
 )
 label_entry.pack(fill="x", pady=5)
 ttk.Label(mid, text="Label", style="Label.TLabel").pack()
-tk.Button(mid, text="<- Switch ->").pack(pady=5)
+def switch_sides():
+    # Swap team names
+    temp_team = left_team_name_var.get()
+    left_team_name_var.set(team_name_var.get())
+    team_name_var.set(temp_team)
+
+    # Swap player list names
+    for i in range(6):
+        temp = left_player_vars[i].get()
+        left_player_vars[i].set(player_vars[i].get())
+        player_vars[i].set(temp)
+
+    # Swap selected player names
+    p1 = player1_name_var.get()
+    p2 = player2_name_var.get()
+    player1_name_var.set(p2)
+    player2_name_var.set(p1)
+
+    # Swap scores
+    s1 = player1_score.get()
+    s2 = player2_score.get()
+    player1_score.set(s2)
+    player2_score.set(s1)
+
+    # Swap fouls
+    f1 = player1_foul.get()
+    f2 = player2_foul.get()
+    player1_foul.set(f2)
+    player2_foul.set(f1)
+
+    # Swap extension
+    e1 = player1_ext.get()
+    e2 = player2_ext.get()
+    player1_ext.set(e2)
+    player2_ext.set(e1)
+
+    manual_update()
+
+switch_btn = tk.Button(mid, text="<- Switch ->", command=switch_sides)
+switch_btn.pack(pady=5)
 tk.Button(mid, text="Reset Score",
       command=reset_all_scores).pack(pady=5)
 auto_update_var = tk.BooleanVar(value=False)
