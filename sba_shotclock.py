@@ -275,7 +275,76 @@ alert_sound_btn = tk.Button(
     command=lambda: select_alert_file())
 alert_sound_btn.pack(side="left", padx=5)
 edit_widgets.append(alert_sound_btn)
+settings_btn = tk.Button(
+    alert_row,
+    text="⚙",
+    font=("Arial", 11, "bold"),
+    width=3,
+    bg="#2C2C2C",
+    fg="white",
+    command=lambda: open_hotkey_settings()
+)
 
+# ================= HOTKEY SETTINGS WINDOW =================
+
+hotkeys = {
+    "Start Game": "g",
+    "Start Timer": "s",
+    "Pause": "p",
+    "Reset": "x",
+    "Extension": "<space>"
+}
+
+def open_hotkey_settings():
+    settings = tk.Toplevel(root)
+    settings.title("Shotclock Hotkeys")
+    settings.geometry("350x300")
+    settings.configure(bg="#121212")
+
+    ttk.Label(settings, text="Customize Hotkeys",
+              style="Title.TLabel").pack(pady=10)
+
+    entries = {}
+
+    for action, key in hotkeys.items():
+        row = tk.Frame(settings, bg="#121212")
+        row.pack(pady=5)
+
+        ttk.Label(row, text=action + ":",
+                  style="Label.TLabel", width=15).pack(side="left")
+
+        var = tk.StringVar(value=key)
+        entry = ttk.Entry(row, textvariable=var, width=10)
+        entry.pack(side="left")
+
+        entries[action] = var
+
+    def save_hotkeys():
+        # Unbind old keys
+        for key in hotkeys.values():
+            root.unbind(key)
+
+        # Save new keys
+        for action in hotkeys:
+            hotkeys[action] = entries[action].get()
+
+        bind_hotkeys()
+        settings.destroy()
+
+    tk.Button(settings,
+              text="Save",
+              bg="#4CAF50",
+              fg="white",
+              command=save_hotkeys).pack(pady=15)
+settings_btn.pack(side="left", padx=5)
+def bind_hotkeys():
+    root.bind(hotkeys["Start Game"], safe_start_game)
+    root.bind(hotkeys["Start Timer"], safe_start_timer)
+    root.bind(hotkeys["Pause"], safe_pause)
+    root.bind(hotkeys["Reset"], safe_reset)
+    root.bind(hotkeys["Extension"], safe_extension)
+
+edit_widgets.append(settings_btn)
 # =====================================================
 # COLOR + SOUND FUNCTIONS
 # =====================================================
@@ -436,14 +505,6 @@ def safe_reset(event=None):
 def safe_extension(event=None):
     if allow_hotkeys():
         add_extension()
-
-
-# ----------------- KEYBINDINGS -----------------
-root.bind("g", safe_start_game)
-root.bind("s", safe_start_timer)
-root.bind("p", safe_pause)
-root.bind("x", safe_reset)
-root.bind("<space>", safe_extension)
 
 # ---------------- RIGHT TEAM ----------------
 right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
@@ -880,4 +941,5 @@ load_team_data()
 save_scores_to_obs()
 save_foul_ext_to_obs()
 save_center_label()
+bind_hotkeys()
 root.mainloop()
