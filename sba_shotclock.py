@@ -35,6 +35,8 @@ style.configure("Title.TLabel", background="#121212", foreground="white", font=(
 style.configure("Label.TLabel", background="#121212", foreground="white", font=("Arial", 12))
 style.configure("Entry.TEntry", font=("Arial", 11))
 
+SELECT_COLOR = "#4FC3F7"   # Light Blue
+DEFAULT_BTN_COLOR = "#F0F0F0"  # Default system color
 # ================== MAIN CONTAINER ==================
 main = tk.Frame(root, bg="black")
 main.pack(fill="both", expand=True, padx=8, pady=8)
@@ -59,28 +61,43 @@ ttk.Label(left_team, text="Player's Name",
 left_player_vars = []
 left_player_entries = []
 
+left_select_buttons = []
+
 for i in range(6):
     row = tk.Frame(left_team, bg="#121212")
     row.pack(fill="x", pady=4)
 
     var = tk.StringVar()
 
-    def make_select(v):
-       return lambda: [player1_name_var.set(v.get()), update_obs_player_names()] # 🔥 also update OBS file when selecting player
-
     select_btn = tk.Button(
         row,
         text="Select",
-        width=8,
-        command=make_select(var)
+        width=8
     )
     select_btn.pack(side="left")
+
+    def make_select(v, btn):
+        def select_action():
+            player1_name_var.set(v.get())
+            update_obs_player_names()
+
+            # Reset all buttons color
+            for b in left_select_buttons:
+                b.config(bg=DEFAULT_BTN_COLOR)
+
+            # Highlight selected
+            btn.config(bg=SELECT_COLOR)
+
+        return select_action
+
+    select_btn.config(command=make_select(var, select_btn))
 
     entry = ttk.Entry(row, textvariable=var)
     entry.pack(side="left", padx=5, fill="x", expand=True)
 
     left_player_vars.append(var)
     left_player_entries.append(entry)
+    left_select_buttons.append(select_btn)
 
 
 def save_left_team_data():
@@ -202,7 +219,7 @@ def config_row(parent, label, variable):
 # ----------------- CONFIG ROWS -----------------
 config_row(center, "Start game at:", start_game_at)
 config_row(center, "Shot Duration:", shot_duration)
-config_row(center, "Extention:", extension_seconds)
+config_row(center, "Extension:", extension_seconds)
 config_row(center, "Alert At:", alert_time)
 
 # ----------------- COLOR ROW -----------------
@@ -444,29 +461,43 @@ ttk.Label(right_team, text="Player's Name",
 player_vars = []
 player_entries = []
 
+right_select_buttons = []
+
 for i in range(6):
     row = tk.Frame(right_team, bg="#121212")
     row.pack(fill="x", pady=4)
 
     var = tk.StringVar()
 
-    def make_select(v):
-       return lambda: [player2_name_var.set(v.get()), update_obs_player_names()] # 🔥 also update OBS file when selecting player
-
-
     select_btn = tk.Button(
         row,
         text="Select",
-        width=8,
-        command=make_select(var)
+        width=8
     )
     select_btn.pack(side="left")
+
+    def make_select(v, btn):
+        def select_action():
+            player2_name_var.set(v.get())
+            update_obs_player_names()
+
+            # Reset all buttons
+            for b in right_select_buttons:
+                b.config(bg=DEFAULT_BTN_COLOR)
+
+            # Highlight selected
+            btn.config(bg=SELECT_COLOR)
+
+        return select_action
+
+    select_btn.config(command=make_select(var, select_btn))
 
     entry = ttk.Entry(row, textvariable=var)
     entry.pack(side="left", padx=5, fill="x", expand=True)
 
     player_vars.append(var)
     player_entries.append(entry)
+    right_select_buttons.append(select_btn)
 
 
 def save_team_data():

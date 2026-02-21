@@ -1,7 +1,7 @@
-Team:dragon
+Team:pillars
 Player1:
-Player2:Baseth Mocaibath
-Player3:bob
-Player4:bimbs
-Player5:AJ Ong
+Player2:Drachir Maricho
+Player3:denver
+Player4:
+Player5:
 Player6:
