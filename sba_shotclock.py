@@ -326,7 +326,7 @@ def open_hotkey_settings():
 
         # Save new keys
         for action in hotkeys:
-            hotkeys[action] = entries[action].get()
+            hotkeys[action] = format_key(entries[action].get())
 
         bind_hotkeys()
         settings.destroy()
@@ -345,6 +345,69 @@ def bind_hotkeys():
     root.bind(hotkeys["Extension"], safe_extension)
 
 edit_widgets.append(settings_btn)
+
+#adding special key formatting for hotkey settings
+def format_key(key):
+    key = key.strip().lower()
+
+    # Special keys
+    special_keys = {
+            # --- Basic Control Keys ---
+    "space": "<space>",
+    "enter": "<Return>",
+    "return": "<Return>",
+    "backspace": "<BackSpace>",
+    "tab": "<Tab>",
+    "esc": "<Escape>",
+    "escape": "<Escape>",
+    "delete": "<Delete>",
+    "insert": "<Insert>",
+
+    # --- Arrow Keys ---
+    "up": "<Up>",
+    "down": "<Down>",
+    "left": "<Left>",
+    "right": "<Right>",
+
+    # --- Home / End ---
+    "home": "<Home>",
+    "end": "<End>",
+    "pageup": "<Prior>",       # Page Up
+    "pagedown": "<Next>",      # Page Down
+
+    # --- Function Keys ---
+    "f1": "<F1>",
+    "f2": "<F2>",
+    "f3": "<F3>",
+    "f4": "<F4>",
+    "f5": "<F5>",
+    "f6": "<F6>",
+    "f7": "<F7>",
+    "f8": "<F8>",
+    "f9": "<F9>",
+    "f10": "<F10>",
+    "f11": "<F11>",
+    "f12": "<F12>",
+
+    # --- Modifier Keys (Advanced Use) ---
+    "shift": "<Shift_L>",
+    "ctrl": "<Control_L>",
+    "control": "<Control_L>",
+    "alt": "<Alt_L>",
+    }
+
+    if key in special_keys:
+        return special_keys[key]
+
+    # Single letter or number
+    if len(key) == 1:
+        return key
+
+    # If already formatted like <space>
+    if key.startswith("<") and key.endswith(">"):
+        return key
+
+    return key
 # =====================================================
 # COLOR + SOUND FUNCTIONS
 # =====================================================
