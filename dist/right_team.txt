@@ -4,3 +4,5 @@ Player2:denver
 Player3:brenstom
 Player4:
 Player5:
+Player6:
+Player7:

@@ -63,7 +63,7 @@ left_player_entries = []
 
 left_select_buttons = []
 
-for i in range(6):
+for i in range(7):
     row = tk.Frame(left_team, bg="#121212")
     row.pack(fill="x", pady=4)
 
@@ -79,7 +79,7 @@ for i in range(6):
     def make_select(v, btn):
         def select_action():
             player1_name_var.set(v.get())
-            update_obs_player_names()
+            
 
             # Reset all buttons color
             for b in left_select_buttons:
@@ -587,7 +587,7 @@ player_entries = []
 
 right_select_buttons = []
 
-for i in range(6):
+for i in range(7):
     row = tk.Frame(right_team, bg="#121212")
     row.pack(fill="x", pady=4)
 
@@ -603,7 +603,6 @@ for i in range(6):
     def make_select(v, btn):
         def select_action():
             player2_name_var.set(v.get())
-            update_obs_player_names()
 
             # Reset all buttons
             for b in right_select_buttons:
@@ -676,8 +675,6 @@ def save_scores_to_obs(*args):
     with open("obs_player2_score.txt", "w", encoding="utf-8") as f:
         f.write(str(player2_score.get()))
         
-player1_score.trace_add("write", save_scores_to_obs)
-player2_score.trace_add("write", save_scores_to_obs)
 
 # ================= FOUL & EXT AUTO SAVE =================
 def save_foul_ext_to_obs(*args):
@@ -699,10 +696,7 @@ def save_foul_ext_to_obs(*args):
     with open("obs_player2_ext.txt", "w", encoding="utf-8") as f:
         f.write(str(player2_ext.get()))
 
-player1_foul.trace_add("write", save_foul_ext_to_obs)
-player2_foul.trace_add("write", save_foul_ext_to_obs)
-player1_ext.trace_add("write", save_foul_ext_to_obs)
-player2_ext.trace_add("write", save_foul_ext_to_obs)
+
 
 # ================ SCORE FUNCTION =================
 def change_score(score_var, amount):
@@ -834,7 +828,7 @@ def switch_sides():
     team_name_var.set(temp_team)
 
     # Swap player list names
-    for i in range(6):
+    for i in range(7):
         temp = left_player_vars[i].get()
         left_player_vars[i].set(player_vars[i].get())
         player_vars[i].set(temp)
