@@ -316,7 +316,7 @@ def open_hotkey_settings():
         var = tk.StringVar(value=key)
         entry = ttk.Entry(row, textvariable=var, width=10)
         entry.pack(side="left")
-
+        entry.bind("<Key>", lambda e, v=var: capture_hotkey(e, v))
         entries[action] = var
 
     def save_hotkeys():
@@ -345,7 +345,34 @@ def bind_hotkeys():
     root.bind(hotkeys["Extension"], safe_extension)
 
 edit_widgets.append(settings_btn)
+def capture_hotkey(event, var):
+    key = event.keysym.lower()
 
+    special_keys = {
+        "space": "<space>",
+        "return": "<Return>",
+        "enter": "<Return>",
+        "escape": "<Escape>",
+        "esc": "<Escape>",
+        "tab": "<Tab>",
+        "backspace": "<BackSpace>",
+        "delete": "<Delete>",
+        "up": "<Up>",
+        "down": "<Down>",
+        "left": "<Left>",
+        "right": "<Right>"
+    }
+
+    if key in special_keys:
+        formatted = special_keys[key]
+    elif len(key) == 1:
+        formatted = key
+    else:
+        formatted = f"<{event.keysym}>"
+
+    var.set(formatted)
+
+    return "break"  
 #adding special key formatting for hotkey settings
 def format_key(key):
     key = key.strip().lower()
