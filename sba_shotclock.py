@@ -6,11 +6,6 @@ import sys
 import os
 import time
 import secrets
-# ================= OBS DATA FOLDER =================
-OBS_FOLDER = "obs_data"
-
-if not os.path.exists(OBS_FOLDER):
-    os.makedirs(OBS_FOLDER)
 root = tk.Tk()
 root.title("Scoreboard Software")
 
