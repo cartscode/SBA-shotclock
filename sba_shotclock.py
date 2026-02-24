@@ -8,6 +8,7 @@ import time
 import secrets
 root = tk.Tk()
 root.title("Scoreboard Software")
+root.iconbitmap("sba_shotclock.ico")
 
 root.geometry("1000x600")
 root.minsize(950, 780)
