@@ -6,6 +6,11 @@ import sys
 import os
 import time
 import secrets
+# ================= OBS DATA FOLDER =================
+OBS_FOLDER = "obs_data"
+
+if not os.path.exists(OBS_FOLDER):
+    os.makedirs(OBS_FOLDER)
 root = tk.Tk()
 root.title("Scoreboard Software")
 
@@ -596,6 +601,14 @@ def safe_extension(event=None):
     if allow_hotkeys():
         add_extension()
 
+# ================= TEAM NAME TO OBS =================
+def save_team_names_to_obs(*args):
+    with open("obs_left_team.txt", "w", encoding="utf-8") as f:
+        f.write(left_team_name_var.get())
+
+    with open("obs_right_team.txt", "w", encoding="utf-8") as f:
+        f.write(team_name_var.get())
+
 # ---------------- RIGHT TEAM ----------------
 right_team = ttk.Frame(top, style="Card.TFrame", padding=10)
 right_team.pack(side="left", fill="y", padx=10)
@@ -909,6 +922,7 @@ def manual_update():
     save_scores_to_obs()
     save_foul_ext_to_obs()
     save_center_label()
+    save_team_names_to_obs()
 
 update_btn = tk.Button(
     mid,
@@ -1019,6 +1033,8 @@ player2_foul.trace_add("write", auto_update_trigger)
 player1_ext.trace_add("write", auto_update_trigger)
 player2_ext.trace_add("write", auto_update_trigger)
 
+left_team_name_var.trace_add("write", auto_update_trigger)
+team_name_var.trace_add("write", auto_update_trigger)   
 # ================== RUN ==================
 load_left_team_data()
 load_team_data()
@@ -1026,4 +1042,6 @@ save_scores_to_obs()
 save_foul_ext_to_obs()
 save_center_label()
 bind_hotkeys()
+save_team_names_to_obs()
 root.mainloop()
+
