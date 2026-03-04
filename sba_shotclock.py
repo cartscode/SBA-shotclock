@@ -6,6 +6,49 @@ import sys
 import os
 import time
 import secrets
+import random
+import smtplib
+import ssl
+from email.message import EmailMessage
+import tkinter.simpledialog as simpledialog
+import tkinter.messagebox as messagebox
+import sys
+
+# ================== EMAIL OTP SETTINGS ==================
+SENDER_EMAIL = "cartercarig@gmail.com"   # <-- YOUR GMAIL
+APP_PASSWORD = "fivo cpru pmun fcbr"   # <-- GOOGLE APP PASSWORD
+RECEIVER_EMAIL = "cartercarig@gmail.com" # <-- where OTP will be sent
+
+# ================== GENERATE OTP ==================
+otp_code = str(random.randint(100000, 999999))
+
+def send_otp_email():
+    msg = EmailMessage()
+    msg.set_content(f"Your ShotClock OTP Code is:\n\n{otp_code}")
+    msg["Subject"] = "ShotClock OTP Verification"
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = RECEIVER_EMAIL
+
+    context = ssl.create_default_context()
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(SENDER_EMAIL, APP_PASSWORD)
+            server.send_message(msg)
+    except Exception as e:
+        messagebox.showerror("Email Error", f"Failed to send OTP:\n{e}")
+        sys.exit()
+
+# Send OTP
+send_otp_email()
+
+# Ask user for OTP
+user_input = simpledialog.askstring("OTP Required", "Enter the OTP sent to the owner's Gmail:")
+
+if user_input != otp_code:
+    messagebox.showerror("Access Denied", "Incorrect OTP. Application will close.")
+    sys.exit()
+
 root = tk.Tk()
 root.title("Scoreboard Software")
 root.iconbitmap("sba_shotclock.ico")
@@ -1040,4 +1083,3 @@ save_center_label()
 bind_hotkeys()
 save_team_names_to_obs()
 root.mainloop()
-
