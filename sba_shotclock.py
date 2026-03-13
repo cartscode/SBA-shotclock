@@ -6,7 +6,27 @@ import sys
 import os
 import time
 import secrets
+import datetime
+# ================= SOFTWARE EXPIRATION =================
+expiration_date = datetime.date(2026, 11, 12)
+today = datetime.date.today()
+
+if today > expiration_date:
+    import tkinter as tk
+    from tkinter import messagebox
+
+    temp = tk.Tk()
+    temp.withdraw()
+
+    messagebox.showerror(
+        "Software Locked",
+        "This software license expired on November 12, 2026.\nPlease contact the developer."
+    )
+
+    temp.destroy()
+    sys.exit()
 root = tk.Tk()
+
 root.title("Scoreboard Software")
 root.iconbitmap("sba_shotclock.ico")
 
