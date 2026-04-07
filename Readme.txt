@@ -137,6 +137,53 @@ obs_player1_ext.txt, obs_player2_ext.txt → Player extensions
 
 obs_center_label.txt → Center label for OBS
 
+
+Shotclock 1.1 version
+
+## 🔄 Update – Foul & Extension Display Customization
+
+### ✨ New Feature
+
+Added customizable display options for **Fouls** and **Extensions** in the settings panel.
+
+### ⚙️ What’s New
+
+Users can now choose how values are displayed in OBS:
+
+* **Foul Display Mode**
+
+  * `Dots (●●●)` – visual indicator style
+  * `Number (1, 2, 3...)` – standard numeric format
+
+* **Extension Display Mode**
+
+  * `Number (1, 2, 3...)`
+  * `Dots (●●●)`
+
+### 🎮 How to Use
+
+1. Open the software
+2. Click the ⚙ (Settings) button
+3. Select your preferred display mode
+4. Click **Save**
+
+### 📺 OBS Integration
+
+The selected format will automatically update the following files:
+
+* `obs_player1_foul.txt`
+* `obs_player2_foul.txt`
+* `obs_player1_ext.txt`
+* `obs_player2_ext.txt`
+
+### 🚀 Benefits
+
+* Flexible display for different leagues (FIBA, streetball, etc.)
+* Better visual clarity for livestreams
+* Customizable scoreboard style
+
+---
+
 📞 Support
 
 For setup or usage assistance, contact: Carter Carig

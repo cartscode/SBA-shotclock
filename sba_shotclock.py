@@ -319,7 +319,7 @@ hotkeys = {
 def open_hotkey_settings():
     settings = tk.Toplevel(root)
     settings.title("Shotclock Hotkeys")
-    settings.geometry("350x300")
+    settings.geometry("350x400")  # 🔥 increase height
     settings.configure(bg="#121212")
 
     ttk.Label(settings, text="Customize Hotkeys",
@@ -327,6 +327,7 @@ def open_hotkey_settings():
 
     entries = {}
 
+    # -------- HOTKEYS --------
     for action, key in hotkeys.items():
         row = tk.Frame(settings, bg="#121212")
         row.pack(pady=5)
@@ -340,12 +341,45 @@ def open_hotkey_settings():
         entry.bind("<Key>", lambda e, v=var: capture_hotkey(e, v))
         entries[action] = var
 
+    # ================= DISPLAY OPTIONS =================
+    ttk.Label(settings, text="Display Options",
+              style="Title.TLabel").pack(pady=10)
+
+    # ---- FOUL DISPLAY ----
+    foul_frame = tk.Frame(settings, bg="#121212")
+    foul_frame.pack(pady=5)
+
+    ttk.Label(foul_frame, text="Foul Display:",
+              style="Label.TLabel").pack(side="left")
+
+    ttk.Combobox(
+        foul_frame,
+        textvariable=foul_display_mode,
+        values=["dots", "number"],
+        state="readonly",
+        width=10
+    ).pack(side="left", padx=5)
+
+    # ---- EXT DISPLAY ----
+    ext_frame = tk.Frame(settings, bg="#121212")
+    ext_frame.pack(pady=5)
+
+    ttk.Label(ext_frame, text="Extension:",
+              style="Label.TLabel").pack(side="left")
+
+    ttk.Combobox(
+        ext_frame,
+        textvariable=ext_display_mode,
+        values=["number", "dot"],
+        state="readonly",
+        width=10
+    ).pack(side="left", padx=5)
+
+    # -------- SAVE BUTTON --------
     def save_hotkeys():
-        # Unbind old keys
         for key in hotkeys.values():
             root.unbind(key)
 
-        # Save new keys
         for action in hotkeys:
             hotkeys[action] = format_key(entries[action].get())
 
@@ -721,6 +755,10 @@ player1_ext = tk.IntVar(value=1)
 player2_foul = tk.IntVar(value=0)
 player2_ext = tk.IntVar(value=1)
 
+# ================= DISPLAY MODE =================
+foul_display_mode = tk.StringVar(value="dots")   # dots / number
+ext_display_mode = tk.StringVar(value="number")  # number / dot
+
 # ================= SCORE AUTO SAVE =================
 def save_scores_to_obs(*args):
     # Player 1 score
@@ -732,25 +770,36 @@ def save_scores_to_obs(*args):
         f.write(str(player2_score.get()))
         
 
-# ================= FOUL & EXT AUTO SAVE =================
 def save_foul_ext_to_obs(*args):
 
-    # Convert number to black dots
-    p1_dots = "●" * player1_foul.get()
-    p2_dots = "●" * player2_foul.get()
+    # -------- FOUL DISPLAY --------
+    if foul_display_mode.get() == "dots":
+        p1_foul_display = "●" * player1_foul.get()
+        p2_foul_display = "●" * player2_foul.get()
+    else:  # number
+        p1_foul_display = str(player1_foul.get())
+        p2_foul_display = str(player2_foul.get())
 
+    # -------- EXT DISPLAY --------
+    if ext_display_mode.get() == "dot":
+        p1_ext_display = "●" * player1_ext.get()
+        p2_ext_display = "●" * player2_ext.get()
+    else:
+        p1_ext_display = str(player1_ext.get())
+        p2_ext_display = str(player2_ext.get())
+
+    # -------- SAVE TO OBS --------
     with open("obs_player1_foul.txt", "w", encoding="utf-8") as f:
-        f.write(p1_dots.strip())
+        f.write(p1_foul_display)
 
     with open("obs_player2_foul.txt", "w", encoding="utf-8") as f:
-        f.write(p2_dots.strip())
+        f.write(p2_foul_display)
 
-    # Extension stays number
     with open("obs_player1_ext.txt", "w", encoding="utf-8") as f:
-        f.write(str(player1_ext.get()))
+        f.write(p1_ext_display)
 
     with open("obs_player2_ext.txt", "w", encoding="utf-8") as f:
-        f.write(str(player2_ext.get()))
+        f.write(p2_ext_display)
 
 
 
@@ -1050,7 +1099,10 @@ player1_ext.trace_add("write", auto_update_trigger)
 player2_ext.trace_add("write", auto_update_trigger)
 
 left_team_name_var.trace_add("write", auto_update_trigger)
-team_name_var.trace_add("write", auto_update_trigger)   
+team_name_var.trace_add("write", auto_update_trigger) 
+
+foul_display_mode.trace_add("write", auto_update_trigger)
+ext_display_mode.trace_add("write", auto_update_trigger)
 # ================== RUN ==================
 load_left_team_data()
 load_team_data()
