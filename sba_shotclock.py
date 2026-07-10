@@ -244,42 +244,6 @@ config_row(center, "Shot Duration:", shot_duration)
 config_row(center, "Extension:", extension_seconds)
 config_row(center, "Alert At:", alert_time)
 
-# ----------------- COLOR ROW -----------------
-color_row = tk.Frame(center, bg="#121212")
-color_row.pack(pady=5)
-
-ttk.Label(color_row, text="Normal Color:",
-          style="Label.TLabel").pack(side="left")
-
-normal_color_entry = ttk.Entry(color_row, width=10,
-                               textvariable=normal_color_value)
-normal_color_entry.pack(side="left", padx=5)
-edit_widgets.append(normal_color_entry)
-
-normal_color_btn = tk.Button(
-    color_row, text="Select",
-    command=lambda: choose_normal_color())
-normal_color_btn.pack(side="left")
-edit_widgets.append(normal_color_btn)
-
-# ----------------- ALERT COLOR ROW -----------------
-color_row2 = tk.Frame(center, bg="#121212")
-color_row2.pack(pady=5)
-
-ttk.Label(color_row2, text="Alert Color:",
-          style="Label.TLabel").pack(side="left")
-
-alert_color_entry = ttk.Entry(color_row2, width=10,
-                              textvariable=alert_color_value)
-alert_color_entry.pack(side="left", padx=5)
-edit_widgets.append(alert_color_entry)
-
-alert_color_btn = tk.Button(
-    color_row2, text="Select",
-    command=lambda: choose_alert_color())
-alert_color_btn.pack(side="left")
-edit_widgets.append(alert_color_btn)
-
 # ----------------- ALERT ROW -----------------
 alert_row = tk.Frame(center, bg="#121212")
 alert_row.pack(pady=10)
@@ -341,7 +305,54 @@ def open_hotkey_settings():
         entry.pack(side="left")
         entry.bind("<Key>", lambda e, v=var: capture_hotkey(e, v))
         entries[action] = var
+# ----------------- COLOR ROW -----------------
+    color_row = tk.Frame(settings, bg="#121212")
+    color_row.pack(pady=5)
 
+    ttk.Label(
+    color_row,
+    text="Normal Color:",
+    style="Label.TLabel"
+    ).pack(side="left")
+
+    normal_color_entry = ttk.Entry(
+    color_row,
+    width=10,
+    textvariable=normal_color_value
+    )
+    normal_color_entry.pack(side="left", padx=5)
+
+    normal_color_btn = tk.Button(
+    color_row,
+    text="Select",
+    command=choose_normal_color
+    )
+    normal_color_btn.pack(side="left")
+
+
+# ----------------- ALERT COLOR ROW -----------------
+    color_row2 = tk.Frame(settings, bg="#121212")
+    color_row2.pack(pady=5)
+
+    ttk.Label(
+    color_row2,
+    text="Alert Color:",
+    style="Label.TLabel"
+    ).pack(side="left")
+
+    alert_color_entry = ttk.Entry(
+    color_row2,
+    width=10,
+    textvariable=alert_color_value
+    )
+    alert_color_entry.pack(side="left", padx=5)
+
+    alert_color_btn = tk.Button(
+    color_row2,
+    text="Select",
+    command=choose_alert_color
+    )
+    alert_color_btn.pack(side="left")
     # ================= DISPLAY OPTIONS =================
     ttk.Label(settings, text="Display Options",
               style="Title.TLabel").pack(pady=10)
