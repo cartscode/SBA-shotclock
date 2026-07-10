@@ -201,6 +201,7 @@ mode_label.pack(pady=5)
 # ----------------- DISPLAY WINDOW -----------------
 display_window = tk.Toplevel(root)
 display_window.title("Shot Clock Display")
+display_window.iconbitmap("sba_shotclock.ico")  
 display_window.configure(bg="black")
 display_window.state("zoomed")
 
