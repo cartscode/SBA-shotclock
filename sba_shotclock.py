@@ -186,6 +186,22 @@ timer_label = ttk.Label(
     background="#121212",
     font=("Arial", 48, "bold")
 )
+from PIL import Image, ImageTk
+
+# ----------------- LOGO -----------------
+logo_img = Image.open("cuehub_logo.png")
+logo_img = logo_img.resize((100, 100))
+
+logo_photo = ImageTk.PhotoImage(logo_img)
+
+logo_label = tk.Label(
+    center,
+    image=logo_photo,
+    bg="#121212",
+    bd=0
+)
+logo_label.image = logo_photo
+logo_label.pack(pady=(10, 5))
 timer_label.pack()
 
 mode_label = tk.Label(
