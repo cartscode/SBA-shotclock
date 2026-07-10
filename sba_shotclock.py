@@ -37,15 +37,6 @@ root.minsize(950, 780)
 root.configure(bg="#000000")
 root.resizable(True, True)
 
-# ❌ REMOVE this line:
-# root.attributes("-toolwindow", True)
-
-
-root.configure(bg="#000000")
-
-# Optional: disable maximize button (Windows)
-root.resizable(True, True)
-# root.attributes("-toolwindow", True)  # makes it feel like a control panel
 
 # ================== STYLES ==================
 style = ttk.Style()
