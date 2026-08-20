@@ -3,6 +3,9 @@ from tkinter import ttk
 from tkinter import colorchooser, filedialog, simpledialog, messagebox
 import winsound
 import sys
+import http.server
+import socketserver
+import threading
 import os
 import time
 import secrets
@@ -1122,6 +1125,17 @@ team_name_var.trace_add("write", auto_update_trigger)
 
 foul_display_mode.trace_add("write", auto_update_trigger)
 ext_display_mode.trace_add("write", auto_update_trigger)
+# ================= LOCAL SERVER FOR OBS OVERLAY =================
+def start_obs_server(port=8000):
+    handler = http.server.SimpleHTTPRequestHandler
+    try:
+        httpd = socketserver.ThreadingTCPServer(("0.0.0.0", port), handler)
+        httpd.allow_reuse_address = True
+        httpd.serve_forever()
+    except Exception as e:
+        print(f"[OBS SERVER ERROR] {e}")
+
+threading.Thread(target=start_obs_server, daemon=True).start()
 # ================== RUN ==================
 load_left_team_data()
 load_team_data()

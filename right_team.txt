@@ -1,4 +1,4 @@
-Team:dragon
+Team:Dragon
 Player1:
 Player2:Baseth Mocaibath
 Player3:
