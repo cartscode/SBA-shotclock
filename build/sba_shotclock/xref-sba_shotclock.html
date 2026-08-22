@@ -193,6 +193,7 @@ imports:
  &#8226;   <a href="#heapq">heapq</a>
  &#8226;   <a href="#http.server">http.server</a>
  &#8226;   <a href="#io">io</a>
+ &#8226;   <a href="#json">json</a>
  &#8226;   <a href="#keyword">keyword</a>
  &#8226;   <a href="#linecache">linecache</a>
  &#8226;   <a href="#locale">locale</a>
@@ -209,6 +210,7 @@ imports:
  &#8226;   <a href="#re._parser">re._parser</a>
  &#8226;   <a href="#reprlib">reprlib</a>
  &#8226;   <a href="#secrets">secrets</a>
+ &#8226;   <a href="#socket">socket</a>
  &#8226;   <a href="#socketserver">socketserver</a>
  &#8226;   <a href="#sre_compile">sre_compile</a>
  &#8226;   <a href="#sre_constants">sre_constants</a>
@@ -2972,6 +2974,23 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="_json"></a>
+  <tt>_json</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
+imports:
+    <a href="#json.decoder">json.decoder</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#json.decoder">json.decoder</a>
+ &#8226;   <a href="#json.encoder">json.encoder</a>
+ &#8226;   <a href="#json.scanner">json.scanner</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="_locale"></a>
   <tt>_locale</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
 imported by:
@@ -3826,6 +3845,7 @@ imported by:
  &#8226;   <a href="#encodings.utf_8_sig">encodings.utf_8_sig</a>
  &#8226;   <a href="#encodings.uu_codec">encodings.uu_codec</a>
  &#8226;   <a href="#encodings.zlib_codec">encodings.zlib_codec</a>
+ &#8226;   <a href="#json">json</a>
  &#8226;   <a href="#pickle">pickle</a>
  &#8226;   <a href="#sba_shotclock.py">sba_shotclock.py</a>
  &#8226;   <a href="#tokenize">tokenize</a>
@@ -8366,6 +8386,85 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="json"></a>
+  <a target="code" href="///C:/Users/carte/AppData/Local/Programs/Python/Python311/Lib/json/__init__.py" type="text/plain"><tt>json</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#codecs">codecs</a>
+ &#8226;   <a href="#json.decoder">json.decoder</a>
+ &#8226;   <a href="#json.encoder">json.encoder</a>
+ &#8226;   <a href="#json.scanner">json.scanner</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#json.decoder">json.decoder</a>
+ &#8226;   <a href="#json.encoder">json.encoder</a>
+ &#8226;   <a href="#json.scanner">json.scanner</a>
+ &#8226;   <a href="#sba_shotclock.py">sba_shotclock.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="json.decoder"></a>
+  <a target="code" href="///C:/Users/carte/AppData/Local/Programs/Python/Python311/Lib/json/decoder.py" type="text/plain"><tt>json.decoder</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#_json">_json</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#json.scanner">json.scanner</a>
+ &#8226;   <a href="#re">re</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#_json">_json</a>
+ &#8226;   <a href="#json">json</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="json.encoder"></a>
+  <a target="code" href="///C:/Users/carte/AppData/Local/Programs/Python/Python311/Lib/json/encoder.py" type="text/plain"><tt>json.encoder</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#_json">_json</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#re">re</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#json">json</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="json.scanner"></a>
+  <a target="code" href="///C:/Users/carte/AppData/Local/Programs/Python/Python311/Lib/json/scanner.py" type="text/plain"><tt>json.scanner</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#_json">_json</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#re">re</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#json">json</a>
+ &#8226;   <a href="#json.decoder">json.decoder</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="keyword"></a>
   <a target="code" href="///C:/Users/carte/AppData/Local/Programs/Python/Python311/Lib/keyword.py" type="text/plain"><tt>keyword</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -9166,6 +9265,9 @@ imported by:
  &#8226;   <a href="#importlib.metadata._text">importlib.metadata._text</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#ipaddress">ipaddress</a>
+ &#8226;   <a href="#json.decoder">json.decoder</a>
+ &#8226;   <a href="#json.encoder">json.encoder</a>
+ &#8226;   <a href="#json.scanner">json.scanner</a>
  &#8226;   <a href="#locale">locale</a>
  &#8226;   <a href="#logging">logging</a>
  &#8226;   <a href="#pathlib">pathlib</a>
@@ -9463,6 +9565,7 @@ imported by:
  &#8226;   <a href="#ftplib">ftplib</a>
  &#8226;   <a href="#http.client">http.client</a>
  &#8226;   <a href="#http.server">http.server</a>
+ &#8226;   <a href="#sba_shotclock.py">sba_shotclock.py</a>
  &#8226;   <a href="#socketserver">socketserver</a>
  &#8226;   <a href="#ssl">ssl</a>
  &#8226;   <a href="#urllib.request">urllib.request</a>

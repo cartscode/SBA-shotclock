@@ -10,6 +10,43 @@ import os
 import time
 import secrets
 import datetime
+import socket
+import json
+
+OBS_IP = "192.168.0.150"   # OBS PC IP
+OBS_PORT = 5005
+
+obs_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+def send_to_obs():
+    try:
+        data = {
+            "left_team": left_team_name_var.get(),
+            "right_team": team_name_var.get(),
+
+            "player1": player1_name_var.get(),
+            "player2": player2_name_var.get(),
+
+            "player1_score": player1_score.get(),
+            "player2_score": player2_score.get(),
+
+            "player1_foul": player1_foul.get(),
+            "player2_foul": player2_foul.get(),
+
+            "player1_ext": player1_ext.get(),
+            "player2_ext": player2_ext.get(),
+
+            "center_label": center_label_var.get(),
+
+        }
+
+        obs_socket.sendto(
+            json.dumps(data).encode("utf-8"),
+            (OBS_IP, OBS_PORT)
+        )
+
+    except Exception as e:
+        print("UDP Error:", e)
 # ================= SOFTWARE EXPIRATION =================
 expiration_date = datetime.date(2026, 11, 12)
 today = datetime.date.today()
@@ -1010,6 +1047,7 @@ def manual_update():
     save_foul_ext_to_obs()
     save_center_label()
     save_team_names_to_obs()
+    send_to_obs()
 
 update_btn = tk.Button(
     mid,
@@ -1129,7 +1167,7 @@ ext_display_mode.trace_add("write", auto_update_trigger)
 def start_obs_server(port=8000):
     handler = http.server.SimpleHTTPRequestHandler
     try:
-        httpd = socketserver.ThreadingTCPServer(("0.0.0.0", port), handler)
+        httpd = socketserver.ThreadingTCPServer(("127.0.0.1", port), handler)
         httpd.allow_reuse_address = True
         httpd.serve_forever()
     except Exception as e:
@@ -1145,4 +1183,3 @@ save_center_label()
 bind_hotkeys()
 save_team_names_to_obs()
 root.mainloop()
-
