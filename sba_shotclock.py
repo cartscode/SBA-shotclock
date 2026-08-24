@@ -13,10 +13,80 @@ import datetime
 import socket
 import json
 
-OBS_IP = "192.168.0.150"   # OBS PC IP
+# ================= UDP AUTO-DISCOVERY FOR OBS =================
+# The scoreboard no longer uses a hard-coded OBS IP.
+# It broadcasts discovery/data packets on the local network.
+# OBS should listen on OBS_PORT and reply to DISCOVER_OBS.
+
 OBS_PORT = 5005
+DISCOVERY_PORT = 5006
+DISCOVERY_MESSAGE = "DISCOVER_OBS"
 
 obs_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+obs_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+obs_socket.settimeout(0.25)
+
+obs_ip = None
+obs_discovery_lock = threading.Lock()
+
+def get_broadcast_addresses():
+    """Return likely broadcast addresses for the local IPv4 interfaces."""
+    addresses = {"255.255.255.255"}
+
+    try:
+        hostname = socket.gethostname()
+        local_ips = socket.gethostbyname_ex(hostname)[2]
+
+        for ip in local_ips:
+            parts = ip.split(".")
+            if len(parts) == 4 and all(p.isdigit() for p in parts):
+                # Most common /24 LAN broadcast.
+                addresses.add(".".join(parts[:3]) + ".255")
+    except Exception:
+        pass
+
+    return list(addresses)
+
+def discover_obs():
+    """Ask the LAN which computer is running the OBS receiver."""
+    global obs_ip
+
+    with obs_discovery_lock:
+        for broadcast_ip in get_broadcast_addresses():
+            try:
+                discovery_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                discovery_socket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_BROADCAST, 1
+                )
+                discovery_socket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_REUSEADDR, 1
+                )
+                discovery_socket.settimeout(0.7)
+
+                discovery_socket.sendto(
+                    DISCOVERY_MESSAGE.encode("utf-8"),
+                    (broadcast_ip, DISCOVERY_PORT)
+                )
+
+                while True:
+                    try:
+                        response, address = discovery_socket.recvfrom(1024)
+                        if response.decode("utf-8", errors="ignore").strip() == "OBS_HERE":
+                            obs_ip = address[0]
+                            discovery_socket.close()
+                            print(f"[UDP] OBS found at {obs_ip}:{OBS_PORT}")
+                            return obs_ip
+                    except socket.timeout:
+                        break
+
+                discovery_socket.close()
+
+            except Exception as e:
+                print(f"[UDP DISCOVERY ERROR] {e}")
+
+    obs_ip = None
+    print("[UDP] OBS PC not found on the network.")
+    return None
 
 def send_to_obs():
     try:
@@ -40,10 +110,23 @@ def send_to_obs():
 
         }
 
-        obs_socket.sendto(
-            json.dumps(data).encode("utf-8"),
-            (OBS_IP, OBS_PORT)
-        )
+        payload = json.dumps(data).encode("utf-8")
+
+        # First try the OBS PC that was previously discovered.
+        if obs_ip:
+            try:
+                obs_socket.sendto(payload, (obs_ip, OBS_PORT))
+                return
+            except Exception:
+                pass
+
+        # OBS IP may have changed, so discover it again.
+        discovered_ip = discover_obs()
+
+        if discovered_ip:
+            obs_socket.sendto(payload, (discovered_ip, OBS_PORT))
+        else:
+            print("[UDP] Cannot send scoreboard data: OBS PC not found.")
 
     except Exception as e:
         print("UDP Error:", e)
@@ -66,6 +149,12 @@ if today > expiration_date:
     temp.destroy()
     sys.exit()
 root = tk.Tk()
+
+# Find OBS automatically in the background when the scoreboard starts.
+def initial_obs_discovery():
+    threading.Thread(target=discover_obs, daemon=True).start()
+
+root.after(500, initial_obs_discovery)
 
 root.title("Scoreboard Software")
 root.iconbitmap("sba_shotclock.ico")
